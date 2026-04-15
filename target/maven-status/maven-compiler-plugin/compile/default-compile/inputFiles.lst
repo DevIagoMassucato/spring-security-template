@@ -1,7 +1,12 @@
+C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\user\UserDetailsImp.java
 C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\anime\AnimeController.java
 C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\anime\AnimeService.java
+C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\user\UserEntity.java
 C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\SpringSecurityTemplateApplication.java
+C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\user\UserDetailsServiceImp.java
 C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\anime\AnimeRequest.java
 C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\anime\AnimeResponse.java
 C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\anime\AnimeEntity.java
 C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\anime\AnimeRepository.java
+C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\user\UserRepository.java
+C:\Development\git\spring-security-template\src\main\java\com\iagomassucato\spring\security\template\config\SecurityConfig.java

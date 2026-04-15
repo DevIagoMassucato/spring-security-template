@@ -3,6 +3,11 @@ com\iagomassucato\spring\security\template\anime\AnimeRepository.class
 com\iagomassucato\spring\security\template\anime\AnimeController.class
 com\iagomassucato\spring\security\template\anime\AnimeEntity.class
 com\iagomassucato\spring\security\template\anime\AnimeEntity$AnimeEntityBuilder.class
+com\iagomassucato\spring\security\template\anime\AnimeResponse.class
+com\iagomassucato\spring\security\template\user\UserDetailsServiceImp.class
+com\iagomassucato\spring\security\template\user\UserEntity.class
+com\iagomassucato\spring\security\template\user\UserDetailsImp.class
+com\iagomassucato\spring\security\template\user\UserRepository.class
+com\iagomassucato\spring\security\template\config\SecurityConfig.class
 com\iagomassucato\spring\security\template\anime\AnimeRequest.class
 com\iagomassucato\spring\security\template\SpringSecurityTemplateApplication.class
-com\iagomassucato\spring\security\template\anime\AnimeResponse.class

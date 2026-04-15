@@ -3,7 +3,6 @@ package com.iagomassucato.spring.security.template.anime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.validation.constraints.NotBlank;
 
 @NoArgsConstructor

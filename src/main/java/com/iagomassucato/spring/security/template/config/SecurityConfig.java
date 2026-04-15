@@ -1,22 +1,30 @@
 package com.iagomassucato.spring.security.template.config;
 
+import com.iagomassucato.spring.security.template.user.UserDetailsServiceImp;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final UserDetailsServiceImp userDetailsServiceImp;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
                 .csrf().disable()
                 .authorizeRequests()// //autorizar todas
-                    .antMatchers("/api/v1/anime/public/**").permitAll()// end-point público
-                    .antMatchers(HttpMethod.POST, "/api/v1/anime").hasRole("ADMIN")// aplica autenticação nesse método http, precisa do role admin
-                    .antMatchers(HttpMethod.GET, "/api/v1/anime").authenticated()// aplica autenticação, qualquer usuário autenticado
+                    .antMatchers("/api/v1/anime/public/**").permitAll()
+                    .antMatchers(HttpMethod.POST, "/api/v1/anime").hasRole("ADMIN")
+                    .antMatchers(HttpMethod.GET, "/api/v1/anime").authenticated()
                     .anyRequest().denyAll()
                 .and()
                 .httpBasic();
@@ -24,14 +32,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .userDetailsService(userDetailsServiceImp)
+                .passwordEncoder(passwordEncoder());
+    }
 
-        auth.inMemoryAuthentication()
-                .withUser("admin")
-                .password("{noop}123")
-                .roles("ADMIN")
-                .and()
-                .withUser("user")
-                .password("{noop}123")
-                .roles("USER");
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
