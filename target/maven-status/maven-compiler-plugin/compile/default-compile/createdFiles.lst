@@ -1,0 +1,8 @@
+com\iagomassucato\spring\security\template\anime\AnimeService.class
+com\iagomassucato\spring\security\template\anime\AnimeRepository.class
+com\iagomassucato\spring\security\template\anime\AnimeController.class
+com\iagomassucato\spring\security\template\anime\AnimeEntity.class
+com\iagomassucato\spring\security\template\anime\AnimeEntity$AnimeEntityBuilder.class
+com\iagomassucato\spring\security\template\anime\AnimeRequest.class
+com\iagomassucato\spring\security\template\SpringSecurityTemplateApplication.class
+com\iagomassucato\spring\security\template\anime\AnimeResponse.class
