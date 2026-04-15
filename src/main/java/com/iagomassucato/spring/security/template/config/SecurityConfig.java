@@ -14,9 +14,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()// //autorizar todas
-                .antMatchers(HttpMethod.POST, "/api/v1/anime").hasRole("ADMIN")// aplica autenticação nesse método http, precisa do role admin
-                .antMatchers(HttpMethod.GET, "/api/v1/anime").authenticated()// aplica autenticação, qualquer usuário autenticado
-                .anyRequest().denyAll()
+                    .antMatchers("/api/v1/anime/public/**").permitAll()// end-point público
+                    .antMatchers(HttpMethod.POST, "/api/v1/anime").hasRole("ADMIN")// aplica autenticação nesse método http, precisa do role admin
+                    .antMatchers(HttpMethod.GET, "/api/v1/anime").authenticated()// aplica autenticação, qualquer usuário autenticado
+                    .anyRequest().denyAll()
                 .and()
                 .httpBasic();
     }
@@ -33,5 +34,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .password("{noop}123")
                 .roles("USER");
     }
-
 }

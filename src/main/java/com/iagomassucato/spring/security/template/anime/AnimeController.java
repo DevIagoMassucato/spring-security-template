@@ -27,4 +27,9 @@ public class AnimeController {
         return ResponseEntity.ok(animeResponseList);
     }
 
+
+    @GetMapping("/public")
+    public String testPublic(){
+        return "endpoint publico";
+    }
 }
