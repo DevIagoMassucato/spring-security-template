@@ -23,6 +23,23 @@ public class AnimeService {
                 .collect(Collectors.toList());
     }
 
+    public AnimeResponse findById(Long id) {
+        AnimeEntity animeEntity = findByIdOrThrow(id);
+        return AnimeResponse.fromEntity(animeEntity);
+    }
+
+    public void delete(Long id){
+        AnimeEntity animeEntity = findByIdOrThrow(id);
+        animeRepository.delete(animeEntity);
+    }
+
+    public AnimeResponse update(Long id, AnimeRequest animeRequest) {
+        AnimeEntity animeEntity = findByIdOrThrow(id);
+        animeEntity.updateTitle(animeRequest.getTitle());
+        AnimeEntity animeEntitySaved = save(animeEntity);
+        return AnimeResponse.fromEntity(animeEntitySaved);
+    }
+
     private AnimeEntity save(AnimeEntity animeEntity){
         return animeRepository.save(animeEntity);
     }
@@ -32,4 +49,12 @@ public class AnimeService {
                 .title(animeRequest.getTitle())
                 .build();
     }
+
+    private AnimeEntity findByIdOrThrow(Long id) {
+        return animeRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+    }
+
+
+
 }

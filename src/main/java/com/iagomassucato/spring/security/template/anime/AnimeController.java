@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -13,8 +13,13 @@ import java.util.List;
 public class AnimeController {
     private final AnimeService animeService;
 
+    @GetMapping("/public")
+    public String testPublic(){
+        return "endpoint publico";
+    }
+
     @PostMapping
-    public ResponseEntity<AnimeResponse> create(@RequestBody AnimeRequest animeRequest){
+    public ResponseEntity<AnimeResponse> create(@Valid @RequestBody AnimeRequest animeRequest){
         AnimeResponse animeResponse = animeService.create(animeRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -27,9 +32,26 @@ public class AnimeController {
         return ResponseEntity.ok(animeResponseList);
     }
 
-
-    @GetMapping("/public")
-    public String testPublic(){
-        return "endpoint publico";
+    @GetMapping("/{id}")
+    public ResponseEntity<AnimeResponse> findById(@Valid @PathVariable Long id){
+        AnimeResponse animeResponse = animeService.findById(id);
+        return ResponseEntity.ok(animeResponse);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<AnimeResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody AnimeRequest animeRequest){
+        AnimeResponse animeResponse = animeService.update(id, animeRequest);
+        return ResponseEntity.ok(animeResponse);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        animeService.delete(id);
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
 }

@@ -24,7 +24,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()// //autorizar todas
                     .antMatchers("/api/v1/anime/public/**").permitAll()
                     .antMatchers(HttpMethod.POST, "/api/v1/anime").hasRole("ADMIN")
-                    .antMatchers(HttpMethod.GET, "/api/v1/anime").authenticated()
+                    .antMatchers(HttpMethod.GET, "/api/v1/anime/**").authenticated()
+                    .antMatchers(HttpMethod.DELETE, "/api/v1/anime/**").hasRole("ADMIN")
+                    .antMatchers(HttpMethod.PATCH, "/api/v1/anime/**").hasRole("ADMIN")
                     .anyRequest().denyAll()
                 .and()
                 .httpBasic();

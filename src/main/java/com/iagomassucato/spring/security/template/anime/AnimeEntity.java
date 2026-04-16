@@ -19,4 +19,11 @@ public class AnimeEntity {
     public AnimeEntity(String title){
         this.title = Objects.requireNonNull(title);
     }
+
+    public void updateTitle(String title){
+        if (title == null || title.isBlank()){
+            throw new IllegalArgumentException("title é is required");
+        }
+        this.title = title;
+    }
 }
