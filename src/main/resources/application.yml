@@ -1,0 +1,30 @@
+spring:
+
+  application:
+    name: spring-security-template
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/auth_dev
+    username: auth
+    password: auth
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect.storage_engine: innodb
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
+  output:
+    ansi:
+      enabled: always
+
+server:
+  port: 8080
