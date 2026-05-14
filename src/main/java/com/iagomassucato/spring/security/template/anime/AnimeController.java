@@ -14,6 +14,11 @@ public class AnimeController {
 
     private final AnimeService animeService;
 
+    @GetMapping("/public")
+    public String testPublic(){
+        return "endpoint public";
+    }
+
     @PostMapping
     public ResponseEntity<AnimeResponse> create(@Valid @RequestBody AnimeRequest animeRequest){
         AnimeResponse animeResponse = animeService.create(animeRequest);
