@@ -3,10 +3,11 @@ package com.iagomassucato.spring.security.template.security;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
@@ -15,7 +16,17 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> "ROLE_" + userEntity.getRole());
+        Set<GrantedAuthority> authorities = userEntity.getRoleEnum()
+                .getPermissionSet()
+                .stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                .collect(Collectors.toSet());
+
+        authorities.add(
+                new SimpleGrantedAuthority("ROLE_" + userEntity.getRoleEnum().name())
+        );
+
+        return authorities;
     }
 
     @Override
