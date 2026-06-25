@@ -1,6 +1,7 @@
 package com.iagomassucato.spring.security.template.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -12,15 +13,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .anyRequest().authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/animes").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/v1/animes/**").hasRole("USER")
+                .antMatchers(HttpMethod.PUT, "/api/v1/animes/**").hasAnyRole("ADMIN", "USER")
+                .antMatchers(HttpMethod.DELETE, "/api/v1/animes/**").hasRole("ADMIN")
+                .anyRequest().denyAll()
                 .and()
                 .httpBasic();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
+        auth
+                .inMemoryAuthentication()
                 .withUser("admin")
+                .password("{noop}123")
+                .roles("ADMIN")
+                .and()
+                .withUser("user")
                 .password("{noop}123")
                 .roles("USER");
     }
