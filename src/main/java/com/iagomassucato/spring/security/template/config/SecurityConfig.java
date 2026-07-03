@@ -1,5 +1,6 @@
 package com.iagomassucato.spring.security.template.config;
 
+import com.iagomassucato.spring.security.template.accesscontrol.AnimePermissionEnum;
 import com.iagomassucato.spring.security.template.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,11 +23,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+
                 .antMatchers("/api/v1/animes/public").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/animes").hasRole("ADMIN")
-                .antMatchers(HttpMethod.PUT, "/api/v1/animes/**").hasAnyRole("ADMIN", "USER")
-                .antMatchers(HttpMethod.GET, "/api/v1/animes/**").hasRole("USER")
-                .antMatchers(HttpMethod.DELETE, "/api/v1/animes/**").hasRole("ADMIN")
+
+                .antMatchers(HttpMethod.POST, "/api/v1/animes")
+                .hasAuthority(AnimePermissionEnum.ANIME_CREATE_ANIME.getPermission())
+
+                .antMatchers(HttpMethod.PUT, "/api/v1/animes/**")
+                .hasAuthority(AnimePermissionEnum.ANIME_REPLACE_ANIME.getPermission())
+
+                .antMatchers(HttpMethod.DELETE, "/api/v1/animes/**")
+                .hasAuthority(AnimePermissionEnum.ANIME_DELETE_ANIME.getPermission())
+
+                .antMatchers(HttpMethod.GET, "/api/v1/animes/**").hasAnyRole("USER", "ADMIN")
+
                 .anyRequest().denyAll()
                 .and()
                 .httpBasic();

@@ -1,5 +1,6 @@
 package com.iagomassucato.spring.security.template.user;
 
+import com.iagomassucato.spring.security.template.accesscontrol.RoleEnum;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,13 +28,14 @@ public class UserEntity {
     private String password;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private RoleEnum roleEnum;
 
     @Builder
-    public UserEntity(String username, String password,String role){
+    public UserEntity(String username, String password,RoleEnum roleEnum){
         this.username = validateUsername(username);
         this.password = validatePassword(password);
-        this.role = validateRole(role);
+        this.roleEnum = validateRoleEnum(roleEnum);
     }
 
     public void updateUsername(String username){
@@ -44,8 +46,8 @@ public class UserEntity {
         this.password = validatePassword(password);
     }
 
-    public void updateRole(String role){
-        this.role = validateRole(role);
+    public void updateRoleEnum(RoleEnum roleEnum){
+        this.roleEnum = validateRoleEnum(roleEnum);
     }
 
     private String validateUsername(String username){
@@ -57,8 +59,11 @@ public class UserEntity {
         return validateString(password, "password");
     }
 
-    private String validateRole(String role){
-        return validateString(role, "role");
+    private RoleEnum validateRoleEnum(RoleEnum roleEnum){
+        if (roleEnum == null){
+            throw new IllegalArgumentException("roleEnum is required");
+        }
+        return roleEnum;
     }
 
     private String validateString(String value, String fieldName) {
