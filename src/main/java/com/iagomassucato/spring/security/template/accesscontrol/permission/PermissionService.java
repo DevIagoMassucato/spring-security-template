@@ -3,7 +3,6 @@ package com.iagomassucato.spring.security.template.accesscontrol.permission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,7 @@ public class PermissionService {
         return PermissionResponse.fromEntity(permissionEntitySaved);
     }
 
-    public PermissionResponse replace(Long id, @Valid PermissionRequest permissionRequest){
+    public PermissionResponse replace(Long id, PermissionRequest permissionRequest){
         PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(id);
         permissionEntity.updateName(permissionRequest.getName());
         PermissionEntity permissionEntitySaved = save(permissionEntity);
