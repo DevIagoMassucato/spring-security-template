@@ -1,4 +1,4 @@
-package com.iagomassucato.spring.security.template.permission;
+package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
 import lombok.Getter;
 import javax.validation.constraints.NotBlank;

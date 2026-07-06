@@ -1,4 +1,4 @@
-package com.iagomassucato.spring.security.template.permission;
+package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
