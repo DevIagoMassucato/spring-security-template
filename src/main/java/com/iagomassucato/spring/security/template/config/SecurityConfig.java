@@ -1,12 +1,11 @@
 package com.iagomassucato.spring.security.template.config;
 
-import com.iagomassucato.spring.security.template.accesscontrol.AnimePermissionEnum;
 import com.iagomassucato.spring.security.template.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsServiceImpl userDetailsServiceImpl;
@@ -23,21 +23,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-
                 .antMatchers("/api/v1/animes/public").permitAll()
-
-                .antMatchers(HttpMethod.POST, "/api/v1/animes")
-                .hasAuthority(AnimePermissionEnum.ANIME_CREATE_ANIME.getPermission())
-
-                .antMatchers(HttpMethod.PUT, "/api/v1/animes/**")
-                .hasAuthority(AnimePermissionEnum.ANIME_REPLACE_ANIME.getPermission())
-
-                .antMatchers(HttpMethod.DELETE, "/api/v1/animes/**")
-                .hasAuthority(AnimePermissionEnum.ANIME_DELETE_ANIME.getPermission())
-
-                .antMatchers(HttpMethod.GET, "/api/v1/animes/**").hasAnyRole("USER", "ADMIN")
-
-                .anyRequest().denyAll()
+                .anyRequest().authenticated()
                 .and()
                 .httpBasic();
     }
