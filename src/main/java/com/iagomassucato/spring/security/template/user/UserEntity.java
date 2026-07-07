@@ -1,6 +1,6 @@
 package com.iagomassucato.spring.security.template.user;
 
-import com.iagomassucato.spring.security.template.accesscontrol.RoleEnum;
+import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,15 +27,15 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private RoleEnum roleEnum;
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleEntity roleEntity;
 
     @Builder
-    public UserEntity(String username, String password,RoleEnum roleEnum){
+    public UserEntity(String username, String password, RoleEntity roleEntity){
         this.username = validateUsername(username);
         this.password = validatePassword(password);
-        this.roleEnum = validateRoleEnum(roleEnum);
+        this.roleEntity = validateRoleEntity(roleEntity);
     }
 
     public void updateUsername(String username){
@@ -46,24 +46,23 @@ public class UserEntity {
         this.password = validatePassword(password);
     }
 
-    public void updateRoleEnum(RoleEnum roleEnum){
-        this.roleEnum = validateRoleEnum(roleEnum);
+    public void updateRoleEntity(RoleEntity roleEntity){
+        this.roleEntity = validateRoleEntity(roleEntity);
     }
 
     private String validateUsername(String username){
-        username = validateString(username, "username");
-        return username.toLowerCase();
+        return validateString(username, "username");
     }
 
     private String validatePassword(String password){
         return validateString(password, "password");
     }
 
-    private RoleEnum validateRoleEnum(RoleEnum roleEnum){
-        if (roleEnum == null){
-            throw new IllegalArgumentException("roleEnum is required");
+    private RoleEntity validateRoleEntity(RoleEntity roleEntity){
+        if (roleEntity == null){
+            throw new IllegalArgumentException("role is required");
         }
-        return roleEnum;
+        return roleEntity;
     }
 
     private String validateString(String value, String fieldName) {
