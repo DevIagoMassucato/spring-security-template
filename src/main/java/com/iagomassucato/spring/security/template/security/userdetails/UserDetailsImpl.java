@@ -1,4 +1,4 @@
-package com.iagomassucato.spring.security.template.security;
+package com.iagomassucato.spring.security.template.security.userdetails;
 
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import lombok.RequiredArgsConstructor;
