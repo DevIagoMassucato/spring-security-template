@@ -12,7 +12,7 @@ import java.util.Set;
 @Table(
         name = "roles",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_role_name", columnNames = "name")
+                @UniqueConstraint(name = "uk_roles_name", columnNames = "name")
         }
 )
 @NoArgsConstructor

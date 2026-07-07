@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Table(
         name = "permissions",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_permission_name", columnNames = "name")
+                @UniqueConstraint(name = "uk_permissions_name", columnNames = "name")
         }
 )
 @NoArgsConstructor
