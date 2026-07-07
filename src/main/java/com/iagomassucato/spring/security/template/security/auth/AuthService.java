@@ -17,12 +17,10 @@ public class AuthService {
     private final UserDetailsService userDetailsService;
 
     public AuthResponse login(AuthRequest authRequest) {
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 authRequest.getUsername(),
                 authRequest.getPassword()
         );
-
         authenticationManager.authenticate(authenticationToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtService.generateToken(userDetails);

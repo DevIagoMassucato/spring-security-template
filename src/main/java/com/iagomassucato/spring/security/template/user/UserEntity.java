@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -27,16 +28,21 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private RoleEntity roleEntity;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<RoleEntity> roleEntitySet;
 
     @Builder
-    public UserEntity(String username, String password, RoleEntity roleEntity){
+    public UserEntity(String username, String password, Set<RoleEntity> roleEntitySet){
         this.username = validateUsername(username);
         this.password = validatePassword(password);
-        this.roleEntity = validateRoleEntity(roleEntity);
+        this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
     }
+
 
     public void updateUsername(String username){
         this.username = validateUsername(username);
@@ -46,8 +52,24 @@ public class UserEntity {
         this.password = validatePassword(password);
     }
 
-    public void updateRoleEntity(RoleEntity roleEntity){
-        this.roleEntity = validateRoleEntity(roleEntity);
+    public void updateRoleEntitySet(Set<RoleEntity> roleEntitySet) {
+        this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
+    }
+
+    private String validateString(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " is required");
+        }
+        return value;
+    }
+
+    private Set<RoleEntity> validateRoleEntitySet(Set<RoleEntity> roleEntitySet) {
+
+        if (roleEntitySet == null || roleEntitySet.isEmpty()) {
+            throw new IllegalArgumentException("role is required");
+        }
+
+        return roleEntitySet;
     }
 
     private String validateUsername(String username){
@@ -56,19 +78,5 @@ public class UserEntity {
 
     private String validatePassword(String password){
         return validateString(password, "password");
-    }
-
-    private RoleEntity validateRoleEntity(RoleEntity roleEntity){
-        if (roleEntity == null){
-            throw new IllegalArgumentException("role is required");
-        }
-        return roleEntity;
-    }
-
-    private String validateString(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " is required");
-        }
-        return value;
     }
 }

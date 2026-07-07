@@ -12,11 +12,8 @@ public class JwtService {
     private static final String SECRET_KEY = "my-secret-key";
 
     public String generateToken(UserDetails userDetails) {
-
         Date dateNow = new Date();
-
         Date dateExpiration = new Date(dateNow.getTime() + 86400000);
-
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(dateNow)
@@ -26,7 +23,6 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
@@ -35,15 +31,11 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
-
         try {
-
             Jwts.parser()
                     .setSigningKey(SECRET_KEY)
                     .parseClaimsJws(token);
-
             return true;
-
         } catch (Exception exception) {
             return false;
         }

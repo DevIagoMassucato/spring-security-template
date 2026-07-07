@@ -1,5 +1,7 @@
 package com.iagomassucato.spring.security.template.security.userdetails;
 
+import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
+import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
@@ -18,16 +19,12 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(
-                new SimpleGrantedAuthority("ROLE_" + userEntity.getRoleEntity().getName())
-        );
-        authorities.addAll(
-                userEntity.getRoleEntity()
-                        .getPermissionEntitySet()
-                        .stream()
-                        .map(permission -> new SimpleGrantedAuthority(permission.getName()))
-                        .collect(Collectors.toSet())
-        );
+        for (RoleEntity roleEntity : userEntity.getRoleEntitySet()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getName()));
+            for (PermissionEntity permissionEntity : roleEntity.getPermissionEntitySet()) {
+                authorities.add(new SimpleGrantedAuthority(permissionEntity.getName()));
+            }
+        }
         return authorities;
     }
 

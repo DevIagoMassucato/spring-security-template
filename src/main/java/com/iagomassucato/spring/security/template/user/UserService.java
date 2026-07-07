@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,9 +32,9 @@ public class UserService {
         if (userPatchRequest.getPassword() != null) {
             userEntity.updatePassword(encodePassword(userPatchRequest.getPassword()));
         }
-        if (userPatchRequest.getRoleId() != null) {
-            RoleEntity roleEntity = roleFinder.findByIdOrThrow(userPatchRequest.getRoleId());
-            userEntity.updateRoleEntity(roleEntity);
+        if (userPatchRequest.getRoleIds() != null && !userPatchRequest.getRoleIds().isEmpty()) {
+            Set<RoleEntity> roleEntitySet = roleFinder.findAllByIdsOrThrow(userPatchRequest.getRoleIds());
+            userEntity.updateRoleEntitySet(roleEntitySet);
         }
         UserEntity userEntitySaved = save(userEntity);
         return UserResponse.fromEntity(userEntitySaved);
@@ -42,8 +44,8 @@ public class UserService {
         UserEntity userEntity = findByIdOrThrow(id);
         userEntity.updateUsername(userRequest.getUsername());
         userEntity.updatePassword(encodePassword(userRequest.getPassword()));
-        RoleEntity roleEntity = roleFinder.findByIdOrThrow(userRequest.getRoleId());
-        userEntity.updateRoleEntity(roleEntity);
+        Set<RoleEntity> roleEntitySet = roleFinder.findAllByIdsOrThrow(userRequest.getRoleIds());
+        userEntity.updateRoleEntitySet(roleEntitySet);
         UserEntity userEntitySaved = save(userEntity);
         return UserResponse.fromEntity(userEntitySaved);
     }
@@ -66,11 +68,11 @@ public class UserService {
     }
 
     private UserEntity toEntity(UserRequest userRequest) {
-        RoleEntity roleEntity = roleFinder.findByIdOrThrow(userRequest.getRoleId());
+        Set<RoleEntity> roleEntitySet = roleFinder.findAllByIdsOrThrow(userRequest.getRoleIds());
         return UserEntity.builder()
                 .username(userRequest.getUsername())
                 .password(encodePassword(userRequest.getPassword()))
-                .roleEntity(roleEntity)
+                .roleEntitySet(roleEntitySet)
                 .build();
     }
 
@@ -80,7 +82,7 @@ public class UserService {
 
     private UserEntity findByIdOrThrow(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("user not found with id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("user not found with id: " + id));
     }
 
     private String encodePassword(String password) {

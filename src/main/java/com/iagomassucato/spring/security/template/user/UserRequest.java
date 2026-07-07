@@ -2,7 +2,8 @@ package com.iagomassucato.spring.security.template.user;
 
 import lombok.Getter;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
+import java.util.Set;
 
 @Getter
 public class UserRequest {
@@ -10,6 +11,6 @@ public class UserRequest {
     private String username;
     @NotBlank(message = "password is required")
     private String password;
-    @NotNull(message = "roleId is required")
-    private Long roleId;
+    @NotEmpty(message = "roleIds is required")
+    private Set<Long> roleIds;
 }
