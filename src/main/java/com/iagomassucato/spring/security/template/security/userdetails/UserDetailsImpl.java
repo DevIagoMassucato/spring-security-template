@@ -3,6 +3,7 @@ package com.iagomassucato.spring.security.template.security.userdetails;
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RequiredArgsConstructor
+@Getter
 public class UserDetailsImpl implements UserDetails {
 
     private final UserEntity userEntity;
