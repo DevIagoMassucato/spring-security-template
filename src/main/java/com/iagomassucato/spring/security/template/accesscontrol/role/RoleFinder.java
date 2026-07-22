@@ -28,7 +28,7 @@ public class RoleFinder {
         Set<Long> missingIds = new HashSet<>(ids);
         missingIds.removeAll(foundIds);
         if (!missingIds.isEmpty()) {
-            throw new NoSuchElementException("role not found with id(s): " + missingIds);
+            throw new NoSuchElementException("role not found with id: " + missingIds);
         }
         return new HashSet<>(roleEntityList);
     }

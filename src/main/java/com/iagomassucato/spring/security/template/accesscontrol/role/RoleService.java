@@ -4,6 +4,7 @@ import com.iagomassucato.spring.security.template.accesscontrol.permission.Permi
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ public class RoleService {
         return RoleResponse.fromEntity(roleEntitySaved);
     }
 
+    @Transactional
     public RoleResponse update(Long id, RolePatchRequest rolePatchRequest) {
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
         if (rolePatchRequest.getName() != null) {
@@ -34,6 +36,7 @@ public class RoleService {
         return RoleResponse.fromEntity(roleEntitySaved);
     }
 
+    @Transactional
     public RoleResponse replace(Long id, RoleRequest roleRequest) {
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
         roleEntity.updateName(roleRequest.getName());
@@ -42,18 +45,18 @@ public class RoleService {
         return RoleResponse.fromEntity(roleEntitySaved);
     }
 
+    @Transactional
     public void addPermission(Long roleId, Long permissionId){
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(roleId);
         PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(permissionId);
-        roleEntity.getPermissionEntitySet().add(permissionEntity);
-        save(roleEntity);
+        roleEntity.addPermission(permissionEntity);
     }
 
-    public void removePermission(Long roleId, Long permissionId){
+    @Transactional
+    public void removePermission(Long roleId, Long permissionId) {
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(roleId);
         PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(permissionId);
-        roleEntity.getPermissionEntitySet().remove(permissionEntity);
-        save(roleEntity);
+        roleEntity.removePermission(permissionEntity);
     }
 
     public List<RoleResponse> findAll(){

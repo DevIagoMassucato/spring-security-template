@@ -2,6 +2,7 @@ package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
@@ -16,6 +17,7 @@ import java.util.Set;
         }
 )
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Getter
 public class RoleEntity {
 
@@ -47,6 +49,14 @@ public class RoleEntity {
 
     public void updatePermissionEntitySet(Set<PermissionEntity> permissionEntitySet) {
         this.permissionEntitySet = validatePermissionEntitySet(permissionEntitySet);
+    }
+
+    public void addPermission(PermissionEntity permissionEntity) {
+        this.permissionEntitySet.add(permissionEntity);
+    }
+
+    public void removePermission(PermissionEntity permissionEntity) {
+        this.permissionEntitySet.remove(permissionEntity);
     }
 
     private String validateName(String value) {

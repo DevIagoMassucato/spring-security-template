@@ -26,7 +26,7 @@ public class PermissionFinder {
                     .collect(Collectors.toSet());
             Set<Long> missingIds = new HashSet<>(permissionIds);
             missingIds.removeAll(foundIds);
-            throw new NoSuchElementException("permission not found with id(s): " + missingIds);
+            throw new NoSuchElementException("permission not found with id: " + missingIds);
         }
         return permissionEntitySet;
     }

@@ -1,6 +1,7 @@
 package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import javax.persistence.*;
         }
 )
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Getter
 public class PermissionEntity {
 
