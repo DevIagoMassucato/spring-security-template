@@ -65,4 +65,8 @@ public class RefreshTokenService {
             refreshTokenEntity.revoke();
         }
     }
+
+    public void deleteByUser(UserEntity userEntity) {
+        refreshTokenRepository.deleteByUserEntity(userEntity);
+    }
 }

@@ -1,5 +1,6 @@
 package com.iagomassucato.spring.security.template.security.refreshtoken;
 
+import com.iagomassucato.spring.security.template.user.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
@@ -7,4 +8,5 @@ import java.util.Optional;
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity, Long> {
     Optional<RefreshTokenEntity> findByToken(String token);
+    void deleteByUserEntity(UserEntity userEntity);
 }

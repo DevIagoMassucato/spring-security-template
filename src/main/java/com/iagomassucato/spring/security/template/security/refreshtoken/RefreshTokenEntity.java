@@ -2,6 +2,7 @@ package com.iagomassucato.spring.security.template.security.refreshtoken;
 
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
         }
 )
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Getter
 public class RefreshTokenEntity {
 
