@@ -11,6 +11,8 @@ public class UserRequest {
     private String username;
     @NotBlank(message = "password is required")
     private String password;
+    @NotBlank(message = "email is required")
+    private String email;
     @NotEmpty(message = "roleIds is required")
     private Set<Long> roleIds;
 }

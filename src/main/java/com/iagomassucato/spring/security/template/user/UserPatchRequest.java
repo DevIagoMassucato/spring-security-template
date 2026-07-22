@@ -7,5 +7,6 @@ import java.util.Set;
 public class UserPatchRequest {
     private String username;
     private String password;
+    private String email;
     private Set<Long> roleIds;
 }

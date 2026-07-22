@@ -1,5 +1,6 @@
 package com.iagomassucato.spring.security.template.security.userdetails;
 
+import com.iagomassucato.spring.security.template.security.credential.CredentialEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.Collection;
 public class UserDetailsImpl implements UserDetails {
 
     private final UserEntity userEntity;
+    private final CredentialEntity credentialEntity;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -20,7 +22,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getPassword() {
-        return userEntity.getPassword();
+        return credentialEntity.getPasswordHash();
     }
 
     @Override

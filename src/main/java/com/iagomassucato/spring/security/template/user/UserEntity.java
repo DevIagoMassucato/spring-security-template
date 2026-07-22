@@ -2,6 +2,7 @@ package com.iagomassucato.spring.security.template.user;
 
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
@@ -11,10 +12,11 @@ import java.util.Set;
 @Table(
         name = "users",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_users_username", columnNames = "username")
-        }
-)
+                @UniqueConstraint(name = "uk_users_username", columnNames = "username"),
+                @UniqueConstraint(name = "uk_users_email", columnNames = "email")
+        })
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Getter
 public class UserEntity {
 
@@ -26,7 +28,7 @@ public class UserEntity {
     private String username;
 
     @Column(nullable = false)
-    private String password;
+    private String email;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -37,46 +39,48 @@ public class UserEntity {
     private Set<RoleEntity> roleEntitySet;
 
     @Builder
-    public UserEntity(String username, String password, Set<RoleEntity> roleEntitySet){
+    public UserEntity(String username, String email, Set<RoleEntity> roleEntitySet) {
         this.username = validateUsername(username);
-        this.password = validatePassword(password);
+        this.email = validateEmail(email);
         this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
     }
 
-
-    public void updateUsername(String username){
+    public void updateUsername(String username) {
         this.username = validateUsername(username);
     }
 
-    public void updatePassword(String password){
-        this.password = validatePassword(password);
+    public void updateEmail(String email) {
+        this.email = validateEmail(email);
     }
 
     public void updateRoleEntitySet(Set<RoleEntity> roleEntitySet) {
         this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
     }
 
+    private String validateUsername(String username) {
+        username = validateString(username, "username");
+        return username;
+    }
+
+    private String validateEmail(String email) {
+        email = validateString(email, "email");
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException("email is invalid");
+        }
+        return email;
+    }
+
     private String validateString(String value, String fieldName) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " is required");
         }
-        return value;
+        return value.toLowerCase();
     }
 
     private Set<RoleEntity> validateRoleEntitySet(Set<RoleEntity> roleEntitySet) {
-
         if (roleEntitySet == null || roleEntitySet.isEmpty()) {
             throw new IllegalArgumentException("role is required");
         }
-
         return roleEntitySet;
-    }
-
-    private String validateUsername(String username){
-        return validateString(username, "username");
-    }
-
-    private String validatePassword(String password){
-        return validateString(password, "password");
     }
 }
