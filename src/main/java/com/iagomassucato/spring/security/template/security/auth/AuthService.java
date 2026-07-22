@@ -23,15 +23,11 @@ public class AuthService {
                         authRequest.getUsername(),
                         authRequest.getPassword()
                 );
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        String accessToken = jwtService.generateAccessToken(userDetails);
-        String refreshToken = jwtService.generateRefreshToken(userDetails);
-        refreshTokenService.create(refreshToken, userDetails.getUserEntity()
-        );
-        return new AuthResponse(
-                accessToken,
-                refreshToken
-        );
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            String accessToken = jwtService.generateAccessToken(userDetails);
+            String refreshToken = jwtService.generateRefreshToken(userDetails);
+            refreshTokenService.create(refreshToken, userDetails.getUserEntity());
+            return new AuthResponse(accessToken, refreshToken);
     }
 }

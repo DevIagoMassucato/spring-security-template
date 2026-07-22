@@ -1,8 +1,6 @@
 package com.iagomassucato.spring.security.template.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -12,28 +10,18 @@ import java.util.UUID;
 public class JwtService {
 
     private static final String SECRET_KEY = "my-secret-key";
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000L * 30;
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7;
+    private static final String CLAIM_TYPE = "type";
+    private static final String ACCESS_TOKEN = "access";
+    private static final String REFRESH_TOKEN = "refresh";
+    private static final long ACCESS_TOKEN_EXPIRATION = 5 * 60 * 1000L;
+    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L;
 
     public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(userDetails, "access", ACCESS_TOKEN_EXPIRATION);
+        return generateToken(userDetails, ACCESS_TOKEN, ACCESS_TOKEN_EXPIRATION);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(userDetails, "refresh", REFRESH_TOKEN_EXPIRATION);
-    }
-
-    private String generateToken(UserDetails userDetails, String type, long expiration) {
-        Date nowDate = new Date();
-        Date expirationDate = new Date(nowDate.getTime() + expiration);
-        return Jwts.builder()
-                .setId(UUID.randomUUID().toString())
-                .setSubject(userDetails.getUsername())
-                .claim("type", type)
-                .setIssuedAt(nowDate)
-                .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
-                .compact();
+        return generateToken(userDetails, REFRESH_TOKEN, REFRESH_TOKEN_EXPIRATION);
     }
 
     public String extractUsername(String token) {
@@ -42,29 +30,43 @@ public class JwtService {
 
     public boolean isTokenValid(String token) {
         try {
-            Jwts.parser()
-                    .setSigningKey(SECRET_KEY)
-                    .parseClaimsJws(token);
+            getParser().parseClaimsJws(token);
             return true;
-        } catch (Exception exception) {
+        } catch (JwtException exception) {
             return false;
         }
     }
 
     public boolean isAccessToken(String token) {
-        return "access".equals(extractClaims(token).get("type", String.class)
-        );
+        return ACCESS_TOKEN.equals(extractClaims(token).get(CLAIM_TYPE, String.class));
     }
 
     public boolean isRefreshToken(String token) {
-        return "refresh".equals(extractClaims(token).get("type", String.class)
-        );
+        return REFRESH_TOKEN.equals(extractClaims(token).get(CLAIM_TYPE, String.class));
+    }
+
+    private String generateToken(UserDetails userDetails, String type, long expiration) {
+        Date issuedAt = new Date();
+        Date expirationDate = new Date(issuedAt.getTime() + expiration);
+
+        return Jwts.builder()
+                .setId(UUID.randomUUID().toString())
+                .setSubject(userDetails.getUsername())
+                .claim(CLAIM_TYPE, type)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expirationDate)
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
     }
 
     private Claims extractClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+        return getParser()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    private JwtParser getParser() {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY);
     }
 }
