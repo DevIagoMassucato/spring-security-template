@@ -6,8 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class AnimeResponse {
-    private Long id;
-    private String title;
+    private final Long id;
+    private final String title;
 
     public static AnimeResponse fromEntity(AnimeEntity animeEntity) {
         return new AnimeResponse(

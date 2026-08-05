@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public class RoleResponse {
-    private Long id;
-    private String name;
-    private Set<String> permissions;
+    private final Long id;
+    private final String name;
+    private final Set<String> permissions;
 
     public static RoleResponse fromEntity(RoleEntity roleEntity){
         return new RoleResponse(
