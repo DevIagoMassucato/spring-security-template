@@ -29,7 +29,7 @@ public class OAuth2AuthenticationService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String email = (String) attributes.get(EMAIL_ATTRIBUTE);
         String providerId = (String) attributes.get(PROVIDER_ID_ATTRIBUTE);
-        UserEntity userEntity = userFinder.findByEmail(email);
+        UserEntity userEntity = userFinder.findByEmailOrThrow(email);
         CredentialEntity credentialEntity = credentialRepository
                 .findByUserEntityAndCredentialProvider(userEntity, CredentialProvider.GOOGLE)
                 .orElseGet(() -> createCredential(userEntity, providerId));

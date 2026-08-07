@@ -2,8 +2,8 @@ package com.iagomassucato.spring.security.template.user;
 
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleFinder;
-import com.iagomassucato.spring.security.template.security.credential.CredentialService;
-import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenService;
+import com.iagomassucato.spring.security.template.security.credential.*;
+import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenDeleter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -18,15 +18,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserFinder userFinder;
     private final RoleFinder roleFinder;
-    private final RefreshTokenService refreshTokenService;
-    private final CredentialService credentialService;
+    private final CredentialFinder credentialFinder;
+    private final CredentialCreator credentialCreator;
+    private final CredentialUpdater credentialUpdater;
+    private final CredentialDeleter credentialDeleter;
+    private final RefreshTokenDeleter refreshTokenDeleter;
+
 
     @Transactional
     public UserResponse create(UserRequest userRequest) {
-        UserEntity userEntity = toEntity(userRequest);
-        UserEntity userEntitySaved = save(userEntity);
-        credentialService.createLocalCredential(userEntitySaved, userRequest.getPassword());
-        return UserResponse.fromEntity(userEntitySaved);
+        UserEntity userEntity = UserEntity.create(
+                userRequest.getUsername(),
+                userRequest.getEmail(),
+                findRolesByIds(userRequest.getRoleIds())
+        );
+        userRepository.save(userEntity);
+        credentialCreator.createLocal(userEntity, userRequest.getPassword());
+        return UserResponse.fromEntity(userEntity);
     }
 
     @Transactional
@@ -35,18 +43,19 @@ public class UserService {
         if (userPatchRequest.getUsername() != null) {
             userEntity.updateUsername(userPatchRequest.getUsername());
         }
-        if (userPatchRequest.getPassword() != null) {
-            credentialService.updatePassword(id, userPatchRequest.getPassword());
-        }
         if (userPatchRequest.getEmail() != null) {
             userEntity.updateEmail(userPatchRequest.getEmail());
         }
         if (userPatchRequest.getRoleIds() != null && !userPatchRequest.getRoleIds().isEmpty()) {
-            Set<RoleEntity> roleEntitySet = roleFinder.findAllByIdsOrThrow(userPatchRequest.getRoleIds());
-            userEntity.updateRoleEntitySet(roleEntitySet);
+            userEntity.updateRoleEntitySet(findRolesByIds(userPatchRequest.getRoleIds()));
         }
-        UserEntity userEntitySaved = save(userEntity);
-        return UserResponse.fromEntity(userEntitySaved);
+        if (userPatchRequest.getPassword() != null) {
+            CredentialEntity credentialEntity = credentialFinder
+                    .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
+            credentialUpdater.updatePassword(credentialEntity, userPatchRequest.getPassword());
+            refreshTokenDeleter.deleteByUser(userEntity);
+        }
+        return UserResponse.fromEntity(userEntity);
     }
 
     @Transactional
@@ -54,11 +63,12 @@ public class UserService {
         UserEntity userEntity = userFinder.findByIdOrThrow(id);
         userEntity.updateUsername(userRequest.getUsername());
         userEntity.updateEmail(userRequest.getEmail());
-        Set<RoleEntity> roleEntitySet = roleFinder.findAllByIdsOrThrow(userRequest.getRoleIds());
-        userEntity.updateRoleEntitySet(roleEntitySet);
-        credentialService.updatePassword(id, userRequest.getPassword());
-        UserEntity userEntitySaved = save(userEntity);
-        return UserResponse.fromEntity(userEntitySaved);
+        userEntity.updateRoleEntitySet(findRolesByIds(userRequest.getRoleIds()));
+        CredentialEntity credentialEntity = credentialFinder
+                .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
+        credentialUpdater.updatePassword(credentialEntity, userRequest.getPassword());
+        refreshTokenDeleter.deleteByUser(userEntity);
+        return UserResponse.fromEntity(userEntity);
     }
 
     public List<UserResponse> findAll() {
@@ -76,21 +86,12 @@ public class UserService {
     @Transactional
     public void delete(Long id) {
         UserEntity userEntity = userFinder.findByIdOrThrow(id);
-        refreshTokenService.deleteByUser(userEntity);
-        credentialService.deleteByUser(userEntity);
+        refreshTokenDeleter.deleteByUser(userEntity);
+        credentialDeleter.deleteByUser(userEntity);
         userRepository.delete(userEntity);
     }
 
-    private UserEntity toEntity(UserRequest userRequest) {
-        Set<RoleEntity> roleEntitySet = roleFinder.findAllByIdsOrThrow(userRequest.getRoleIds());
-        return UserEntity.builder()
-                .username(userRequest.getUsername())
-                .email(userRequest.getEmail())
-                .roleEntitySet(roleEntitySet)
-                .build();
-    }
-
-    private UserEntity save(UserEntity userEntity) {
-        return userRepository.save(userEntity);
+    private Set<RoleEntity> findRolesByIds(Set<Long> rolesIds){
+        return roleFinder.findAllByIdOrThrow(rolesIds);
     }
 }

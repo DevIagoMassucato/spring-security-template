@@ -3,13 +3,13 @@ package com.iagomassucato.spring.security.template.security.oauth2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iagomassucato.spring.security.template.security.auth.AuthResponse;
 import com.iagomassucato.spring.security.template.security.jwt.JwtService;
+import com.iagomassucato.spring.security.template.security.jwt.JwtToken;
 import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenService;
 import com.iagomassucato.spring.security.template.security.userdetails.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,13 +28,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication
-    ) throws IOException, ServletException {
-
-        UserDetailsImpl userDetails = oAuth2AuthenticationService.authenticate(authentication);
-        String accessToken = jwtService.generateAccessToken(userDetails);
-        String refreshToken = jwtService.generateRefreshToken(userDetails);
-        refreshTokenService.create(refreshToken, userDetails.getUserEntity());
-        AuthResponse authResponse = new AuthResponse(accessToken, refreshToken);
+    ) throws IOException {
+        UserDetailsImpl userDetailsImpl = oAuth2AuthenticationService.authenticate(authentication);
+        JwtToken accessToken = jwtService.generateAccessToken(userDetailsImpl.getUserEntity());
+        JwtToken refreshToken = jwtService.generateRefreshToken(userDetailsImpl.getUserEntity());
+        refreshTokenService.create(refreshToken, userDetailsImpl.getUserEntity());
+        AuthResponse authResponse = new AuthResponse(accessToken.getToken(), refreshToken.getToken());
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
         objectMapper.writeValue(response.getOutputStream(), authResponse);

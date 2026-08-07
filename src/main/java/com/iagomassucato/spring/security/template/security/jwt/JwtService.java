@@ -1,72 +1,73 @@
 package com.iagomassucato.spring.security.template.security.jwt;
 
-import io.jsonwebtoken.*;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.iagomassucato.spring.security.template.user.UserEntity;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.time.Duration;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    private static final String SECRET_KEY = "my-secret-key";
     private static final String CLAIM_TYPE = "type";
-    private static final String ACCESS_TOKEN = "access";
-    private static final String REFRESH_TOKEN = "refresh";
-    private static final long ACCESS_TOKEN_EXPIRATION = 5 * 60 * 1000L;
-    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L;
 
-    public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(userDetails, ACCESS_TOKEN, ACCESS_TOKEN_EXPIRATION);
+    private final JwtProperties jwtProperties;
+
+    public JwtToken generateAccessToken(UserEntity userEntity) {
+        return generateToken(userEntity.getId(), TokenType.ACCESS, jwtProperties.getAccessTokenExpiration());
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(userDetails, REFRESH_TOKEN, REFRESH_TOKEN_EXPIRATION);
+    public JwtToken generateRefreshToken(UserEntity userEntity) {
+        return generateToken(userEntity.getId(), TokenType.REFRESH, jwtProperties.getRefreshTokenExpiration());
     }
 
-    public String extractUsername(String token) {
-        return extractClaims(token).getSubject();
+    public Claims getClaims(String token) {
+        return getParser().parseClaimsJws(token).getBody();
     }
 
-    public boolean isTokenValid(String token) {
-        try {
-            getParser().parseClaimsJws(token);
-            return true;
-        } catch (JwtException exception) {
-            return false;
-        }
+    public Long getSubject(Claims claims) {
+        return Long.valueOf(claims.getSubject());
     }
 
-    public boolean isAccessToken(String token) {
-        return ACCESS_TOKEN.equals(extractClaims(token).get(CLAIM_TYPE, String.class));
+    public String getTokenId(Claims claims) {
+        return claims.getId();
     }
 
-    public boolean isRefreshToken(String token) {
-        return REFRESH_TOKEN.equals(extractClaims(token).get(CLAIM_TYPE, String.class));
+    public boolean isAccessToken(Claims claims) {
+        return TokenType.ACCESS.name().equals(claims.get(CLAIM_TYPE, String.class));
     }
 
-    private String generateToken(UserDetails userDetails, String type, long expiration) {
+    public boolean isRefreshToken(Claims claims) {
+        return TokenType.REFRESH.name().equals(claims.get(CLAIM_TYPE, String.class));
+    }
+
+    private JwtToken generateToken(Long userId, TokenType tokenType, Duration expiration) {
+        String tokenId = UUID.randomUUID().toString();
         Date issuedAt = new Date();
-        Date expirationDate = new Date(issuedAt.getTime() + expiration);
-
-        return Jwts.builder()
-                .setId(UUID.randomUUID().toString())
-                .setSubject(userDetails.getUsername())
-                .claim(CLAIM_TYPE, type)
+        Date expirationDate = new Date(issuedAt.getTime() + expiration.toMillis());
+        String token = Jwts.builder()
+                .setId(tokenId)
+                .setSubject(userId.toString())
+                .claim(CLAIM_TYPE, tokenType.name())
                 .setIssuedAt(issuedAt)
                 .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
-    }
-
-    private Claims extractClaims(String token) {
-        return getParser()
-                .parseClaimsJws(token)
-                .getBody();
+        return new JwtToken(
+                tokenId,
+                token,
+                expirationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+        );
     }
 
     private JwtParser getParser() {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY);
+        return Jwts.parser().setSigningKey(jwtProperties.getSecretKey());
     }
 }

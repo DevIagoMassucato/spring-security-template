@@ -2,10 +2,10 @@ package com.iagomassucato.spring.security.template.security.refreshtoken;
 
 import com.iagomassucato.spring.security.template.security.auth.AuthResponse;
 import com.iagomassucato.spring.security.template.security.jwt.JwtService;
+import com.iagomassucato.spring.security.template.security.jwt.JwtToken;
 import com.iagomassucato.spring.security.template.user.UserEntity;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -16,57 +16,45 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenFinder refreshTokenFinder;
+    private final RefreshTokenDeleter refreshTokenDeleter;
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
 
-    public RefreshTokenEntity create(String refreshToken, UserEntity userEntity) {
-        RefreshTokenEntity refreshTokenEntity =
-                RefreshTokenEntity.builder()
-                        .token(refreshToken)
-                        .expiration(LocalDateTime.now().plusDays(7))
-                        .revoked(false)
-                        .userEntity(userEntity)
-                        .build();
+    public RefreshTokenEntity create(JwtToken jwtToken, UserEntity userEntity) {
+        RefreshTokenEntity refreshTokenEntity = RefreshTokenEntity.create(
+                jwtToken.getTokenId(),
+                userEntity,
+                jwtToken.getExpirationDate()
+        );
         return refreshTokenRepository.save(refreshTokenEntity);
     }
 
     @Transactional
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
         String refreshToken = refreshTokenRequest.getRefreshToken();
-        if (!jwtService.isTokenValid(refreshToken)) {
-            throw new RuntimeException("invalid refresh token");
-        }
-        if (!jwtService.isRefreshToken(refreshToken)) {
+        Claims claims = jwtService.getClaims(refreshToken);
+        if (!jwtService.isRefreshToken(claims)) {
             throw new RuntimeException("invalid refresh token type");
         }
-        RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenOrThrow(refreshToken);
-        if (refreshTokenEntity.isExpired()) {
-            refreshTokenEntity.revoke();
+        String tokenId = jwtService.getTokenId(claims);
+        RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenIdOrThrow(tokenId);
+        if (refreshTokenEntity.getExpirationDate().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("refresh token expired");
         }
-        if (refreshTokenEntity.isRevoked()) {
-            throw new RuntimeException("refresh token revoked");
-        }
-        String username = jwtService.extractUsername(refreshToken);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        refreshTokenEntity.revoke();
-        String newAccessToken = jwtService.generateAccessToken(userDetails);
-        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
-        create(newRefreshToken, refreshTokenEntity.getUserEntity());
-        return new AuthResponse(newAccessToken, newRefreshToken
+        UserEntity userEntity = refreshTokenEntity.getUserEntity();
+        refreshTokenDeleter.delete(refreshTokenEntity);
+        JwtToken newAccessToken = jwtService.generateAccessToken(userEntity);
+        JwtToken newRefreshToken = jwtService.generateRefreshToken(userEntity);
+        create(newRefreshToken, userEntity);
+        return new AuthResponse(
+                newAccessToken.getToken(),
+                newRefreshToken.getToken()
         );
     }
 
-    @Transactional
-    public void revoke(RefreshTokenRequest refreshTokenRequest) {
-        String refreshToken = refreshTokenRequest.getRefreshToken();
-        RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenOrThrow(refreshToken);
-        if (!refreshTokenEntity.isRevoked()) {
-            refreshTokenEntity.revoke();
-        }
-    }
-
-    public void deleteByUser(UserEntity userEntity) {
-        refreshTokenRepository.deleteByUserEntity(userEntity);
+    public void delete(RefreshTokenRequest refreshTokenRequest) {
+        Claims claims = jwtService.getClaims(refreshTokenRequest.getRefreshToken());
+        String tokenId = jwtService.getTokenId(claims);
+        RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenIdOrThrow(tokenId);
+        refreshTokenDeleter.delete(refreshTokenEntity);
     }
 }

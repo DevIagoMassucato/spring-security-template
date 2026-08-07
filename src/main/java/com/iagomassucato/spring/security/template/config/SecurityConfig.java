@@ -1,8 +1,10 @@
 package com.iagomassucato.spring.security.template.config;
 
 import com.iagomassucato.spring.security.template.security.jwt.JwtAuthenticationFilter;
+import com.iagomassucato.spring.security.template.security.jwt.JwtProperties;
 import com.iagomassucato.spring.security.template.security.userdetails.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -22,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableConfigurationProperties(JwtProperties.class)
 @RequiredArgsConstructor
 @Order(1)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {

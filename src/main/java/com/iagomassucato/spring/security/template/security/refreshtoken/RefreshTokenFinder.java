@@ -1,17 +1,19 @@
 package com.iagomassucato.spring.security.template.security.refreshtoken;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import java.util.NoSuchElementException;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class RefreshTokenFinder {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public RefreshTokenEntity findByTokenOrThrow(String token) {
-        return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new NoSuchElementException("refresh token not found"));
+    public RefreshTokenEntity findByTokenIdOrThrow(String tokenId) {
+        return refreshTokenRepository
+                .findByTokenId(tokenId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("refresh token not found"));
     }
 }

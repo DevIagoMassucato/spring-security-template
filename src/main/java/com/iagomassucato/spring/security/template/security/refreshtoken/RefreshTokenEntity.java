@@ -1,7 +1,6 @@
 package com.iagomassucato.spring.security.template.security.refreshtoken;
 
 import com.iagomassucato.spring.security.template.user.UserEntity;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,9 +11,8 @@ import java.time.LocalDateTime;
 @Table(
         name = "refresh_tokens",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_refresh_tokens_token", columnNames = "token")
-        }
-)
+                @UniqueConstraint(name = "uk_refresh_tokens_token_id", columnNames = "token_id")
+        })
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Getter
@@ -24,47 +22,31 @@ public class RefreshTokenEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 1000)
-    private String token;
+    @Column(name = "token_id", nullable = false, length = 36)
+    private String tokenId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity userEntity;
 
     @Column(nullable = false)
     private LocalDateTime expirationDate;
 
-    @Column(nullable = false)
-    private boolean revoked;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity userEntity;
-
-    @Builder
-    public RefreshTokenEntity(String token, LocalDateTime expiration, boolean revoked, UserEntity userEntity) {
-        this.token = validateToken(token);
-        this.expirationDate = validateExpirationDate(expiration);
-        this.revoked = revoked;
+    private RefreshTokenEntity(String tokenId, UserEntity userEntity, LocalDateTime expirationDate) {
+        this.tokenId = validateTokenId(tokenId);
         this.userEntity = validateUserEntity(userEntity);
+        this.expirationDate = validateExpirationDate(expirationDate);
     }
 
-    public void revoke() {
-        this.revoked = true;
+    public static RefreshTokenEntity create(String tokenId, UserEntity userEntity, LocalDateTime expirationDate) {
+        return new RefreshTokenEntity(tokenId, userEntity, expirationDate);
     }
 
-    public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expirationDate);
-    }
-
-    private String validateToken(String token) {
-        if (token == null || token.isBlank()) {
-            throw new IllegalArgumentException("token is required");
+    private String validateTokenId(String tokenId) {
+        if (tokenId == null || tokenId.isBlank()) {
+            throw new IllegalArgumentException("tokenId is required");
         }
-        return token;
-    }
-
-    private LocalDateTime validateExpirationDate(LocalDateTime expirationDate) {
-        if (expirationDate == null) {
-            throw new IllegalArgumentException("expirationDate is required");
-        }
-        return expirationDate;
+        return tokenId;
     }
 
     private UserEntity validateUserEntity(UserEntity userEntity) {
@@ -72,5 +54,12 @@ public class RefreshTokenEntity {
             throw new IllegalArgumentException("userEntity is required");
         }
         return userEntity;
+    }
+
+    private LocalDateTime validateExpirationDate(LocalDateTime expirationDate) {
+        if (expirationDate == null) {
+            throw new IllegalArgumentException("expirationDate is required");
+        }
+        return expirationDate;
     }
 }

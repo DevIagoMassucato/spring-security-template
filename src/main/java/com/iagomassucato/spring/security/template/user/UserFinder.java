@@ -1,10 +1,11 @@
 package com.iagomassucato.spring.security.template.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class UserFinder {
 
@@ -15,8 +16,17 @@ public class UserFinder {
                 .orElseThrow(() -> new NoSuchElementException("user not found with id: " + id));
     }
 
-    public UserEntity findByEmail(String email) {
+    public UserEntity findByEmailOrThrow(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("user not found with email: " + email));
+    }
+
+    public UserEntity findByUsernameOrThrow(String username){
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("user not found with username: " + username));
+    }
+
+    public Optional<UserEntity> findByUsernameOptional(String username) {
+        return userRepository.findByUsername(username);
     }
 }

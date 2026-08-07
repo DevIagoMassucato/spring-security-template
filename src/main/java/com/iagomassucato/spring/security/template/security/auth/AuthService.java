@@ -1,6 +1,7 @@
 package com.iagomassucato.spring.security.template.security.auth;
 
 import com.iagomassucato.spring.security.template.security.jwt.JwtService;
+import com.iagomassucato.spring.security.template.security.jwt.JwtToken;
 import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenService;
 import com.iagomassucato.spring.security.template.security.userdetails.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +19,17 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
 
     public AuthResponse login(AuthRequest authRequest) {
-        UsernamePasswordAuthenticationToken authenticationToken =
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authRequest.getUsername(),
                         authRequest.getPassword()
-                );
-            Authentication authentication = authenticationManager.authenticate(authenticationToken);
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            String accessToken = jwtService.generateAccessToken(userDetails);
-            String refreshToken = jwtService.generateRefreshToken(userDetails);
-            refreshTokenService.create(refreshToken, userDetails.getUserEntity());
-            return new AuthResponse(accessToken, refreshToken);
+                )
+        );
+        UserDetailsImpl userDetailsImpl = (UserDetailsImpl) authentication.getPrincipal();
+        JwtToken accessToken = jwtService.generateAccessToken(userDetailsImpl.getUserEntity());
+        JwtToken refreshToken = jwtService.generateRefreshToken(userDetailsImpl.getUserEntity());
+        refreshTokenService.create(refreshToken, userDetailsImpl.getUserEntity());
+        return new AuthResponse(accessToken.getToken(), refreshToken.getToken());
     }
+
 }
