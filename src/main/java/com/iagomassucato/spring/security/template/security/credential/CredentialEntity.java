@@ -1,7 +1,6 @@
 package com.iagomassucato.spring.security.template.security.credential;
 
 import com.iagomassucato.spring.security.template.user.UserEntity;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,14 +36,6 @@ public class CredentialEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
-    @Builder
-    public CredentialEntity(UserEntity userEntity, CredentialProvider credentialProvider, String providerId, String passwordHash) {
-        this.userEntity = validateUserEntity(userEntity);
-        this.credentialProvider = validateCredentialProvider(credentialProvider);
-        this.providerId = validateProviderId(credentialProvider, providerId);
-        this.passwordHash = validatePasswordHash(credentialProvider, passwordHash);
-    }
-
     public static CredentialEntity local(UserEntity userEntity, String passwordHash) {
         return new CredentialEntity(
                 userEntity,
@@ -67,9 +58,16 @@ public class CredentialEntity {
         this.passwordHash = validatePasswordHash(credentialProvider, passwordHash);
     }
 
+    private CredentialEntity(UserEntity userEntity, CredentialProvider credentialProvider, String providerId, String passwordHash) {
+        this.userEntity = validateUserEntity(userEntity);
+        this.credentialProvider = validateCredentialProvider(credentialProvider);
+        this.providerId = validateProviderId(credentialProvider, providerId);
+        this.passwordHash = validatePasswordHash(credentialProvider, passwordHash);
+    }
+
     private UserEntity validateUserEntity(UserEntity userEntity) {
         if (userEntity == null) {
-            throw new IllegalArgumentException("user is required");
+            throw new IllegalArgumentException("userEntity is required");
         }
         return userEntity;
     }
