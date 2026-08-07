@@ -30,8 +30,8 @@ public class RoleEntity {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "role_permission",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
+            joinColumns = @JoinColumn(name = "role_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "permission_id", nullable = false)
     )
     private Set<PermissionEntity> permissionEntitySet = new HashSet<>();
 

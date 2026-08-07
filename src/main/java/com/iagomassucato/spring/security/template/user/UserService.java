@@ -4,6 +4,7 @@ import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleFinder;
 import com.iagomassucato.spring.security.template.security.credential.*;
 import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenDeleter;
+import com.iagomassucato.spring.security.template.shared.PatchValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -23,6 +24,7 @@ public class UserService {
     private final CredentialUpdater credentialUpdater;
     private final CredentialDeleter credentialDeleter;
     private final RefreshTokenDeleter refreshTokenDeleter;
+    private final PatchValidator patchValidator;
 
 
     @Transactional
@@ -39,6 +41,7 @@ public class UserService {
 
     @Transactional
     public UserResponse update(Long id, UserPatchRequest userPatchRequest) {
+        patchValidator.validate(userPatchRequest);
         UserEntity userEntity = userFinder.findByIdOrThrow(id);
         if (userPatchRequest.getUsername() != null) {
             userEntity.updateUsername(userPatchRequest.getUsername());

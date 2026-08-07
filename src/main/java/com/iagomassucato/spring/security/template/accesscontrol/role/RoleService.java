@@ -2,6 +2,7 @@ package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionFinder;
+import com.iagomassucato.spring.security.template.shared.PatchValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -16,6 +17,7 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleFinder roleFinder;
     private final PermissionFinder permissionFinder;
+    private final PatchValidator patchValidator;
 
     public RoleResponse create(RoleRequest roleRequest){
         RoleEntity roleEntity = RoleEntity.create(
@@ -28,6 +30,7 @@ public class RoleService {
 
     @Transactional
     public RoleResponse update(Long id, RolePatchRequest rolePatchRequest) {
+        patchValidator.validate(rolePatchRequest);
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
         if (rolePatchRequest.getName() != null) {
             roleEntity.updateName(rolePatchRequest.getName());
