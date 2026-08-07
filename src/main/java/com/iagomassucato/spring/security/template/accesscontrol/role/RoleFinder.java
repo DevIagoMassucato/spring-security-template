@@ -1,14 +1,14 @@
 package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class RoleFinder {
 
@@ -19,7 +19,7 @@ public class RoleFinder {
                 .orElseThrow(() -> new NoSuchElementException("role not found with id: " + id));
     }
 
-    public Set<RoleEntity> findAllByIdsOrThrow(Set<Long> ids) {
+    public Set<RoleEntity> findAllByIdOrThrow(Set<Long> ids) {
         List<RoleEntity> roleEntityList = roleRepository.findAllById(ids);
         Set<Long> foundIds = roleEntityList
                 .stream()

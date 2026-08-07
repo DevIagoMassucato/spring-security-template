@@ -18,9 +18,12 @@ public class RoleService {
     private final PermissionFinder permissionFinder;
 
     public RoleResponse create(RoleRequest roleRequest){
-        RoleEntity roleEntity = toEntity(roleRequest);
-        RoleEntity roleEntitySaved = save(roleEntity);
-        return RoleResponse.fromEntity(roleEntitySaved);
+        RoleEntity roleEntity = RoleEntity.create(
+                roleRequest.getName(),
+                findPermissionsByIds(roleRequest.getPermissionIds())
+        );
+        roleRepository.save(roleEntity);
+        return RoleResponse.fromEntity(roleEntity);
     }
 
     @Transactional
@@ -30,19 +33,19 @@ public class RoleService {
             roleEntity.updateName(rolePatchRequest.getName());
         }
         if (rolePatchRequest.getPermissionIds() != null) {
-            roleEntity.updatePermissionEntitySet(getPermissions(rolePatchRequest.getPermissionIds()));
+            roleEntity.updatePermissionEntitySet(findPermissionsByIds(rolePatchRequest.getPermissionIds()));
         }
-        RoleEntity roleEntitySaved = save(roleEntity);
-        return RoleResponse.fromEntity(roleEntitySaved);
+        roleRepository.save(roleEntity);
+        return RoleResponse.fromEntity(roleEntity);
     }
 
     @Transactional
     public RoleResponse replace(Long id, RoleRequest roleRequest) {
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
         roleEntity.updateName(roleRequest.getName());
-        roleEntity.updatePermissionEntitySet(getPermissions(roleRequest.getPermissionIds()));
-        RoleEntity roleEntitySaved = save(roleEntity);
-        return RoleResponse.fromEntity(roleEntitySaved);
+        roleEntity.updatePermissionEntitySet(findPermissionsByIds(roleRequest.getPermissionIds()));
+        roleRepository.save(roleEntity);
+        return RoleResponse.fromEntity(roleEntity);
     }
 
     @Transactional
@@ -76,18 +79,7 @@ public class RoleService {
         roleRepository.delete(roleEntity);
     }
 
-    private RoleEntity toEntity(RoleRequest roleRequest){
-        return RoleEntity.builder()
-                .name(roleRequest.getName())
-                .permissionEntitySet(getPermissions(roleRequest.getPermissionIds()))
-                .build();
-    }
-
-    private RoleEntity save(RoleEntity roleEntity){
-        return roleRepository.save(roleEntity);
-    }
-
-    private Set<PermissionEntity> getPermissions(Set<Long> permissionIds){
-        return permissionFinder.findAllByIdIn(permissionIds);
+    private Set<PermissionEntity> findPermissionsByIds(Set<Long> permissionIds){
+        return permissionFinder.findAllByIdInOrThrow(permissionIds);
     }
 }

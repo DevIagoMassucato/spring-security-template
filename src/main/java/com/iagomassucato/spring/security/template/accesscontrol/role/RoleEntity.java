@@ -1,7 +1,6 @@
 package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,11 +35,16 @@ public class RoleEntity {
     )
     private Set<PermissionEntity> permissionEntitySet = new HashSet<>();
 
-    @Builder
-    public RoleEntity(String name, Set<PermissionEntity> permissionEntitySet){
-        this.name = validateName(name);
-        this.permissionEntitySet = validatePermissionEntitySet(permissionEntitySet);
+    public static RoleEntity create(String name, Set<PermissionEntity> permissionEntitySet){
+        return new RoleEntity(name, permissionEntitySet);
+    }
 
+    public void addPermission(PermissionEntity permissionEntity) {
+        this.permissionEntitySet.add(permissionEntity);
+    }
+
+    public void removePermission(PermissionEntity permissionEntity) {
+        this.permissionEntitySet.remove(permissionEntity);
     }
 
     public void updateName(String name){
@@ -51,12 +55,10 @@ public class RoleEntity {
         this.permissionEntitySet = validatePermissionEntitySet(permissionEntitySet);
     }
 
-    public void addPermission(PermissionEntity permissionEntity) {
-        this.permissionEntitySet.add(permissionEntity);
-    }
+    private RoleEntity(String name, Set<PermissionEntity> permissionEntitySet){
+        this.name = validateName(name);
+        this.permissionEntitySet = validatePermissionEntitySet(permissionEntitySet);
 
-    public void removePermission(PermissionEntity permissionEntity) {
-        this.permissionEntitySet.remove(permissionEntity);
     }
 
     private String validateName(String value) {

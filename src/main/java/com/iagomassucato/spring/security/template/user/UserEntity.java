@@ -1,7 +1,6 @@
 package com.iagomassucato.spring.security.template.user;
 
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,11 +37,8 @@ public class UserEntity {
     )
     private Set<RoleEntity> roleEntitySet;
 
-    @Builder
-    public UserEntity(String username, String email, Set<RoleEntity> roleEntitySet) {
-        this.username = validateUsername(username);
-        this.email = validateEmail(email);
-        this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
+    public static UserEntity create(String username, String email, Set<RoleEntity> roleEntitySet){
+        return new UserEntity(username, email, roleEntitySet);
     }
 
     public void updateUsername(String username) {
@@ -54,6 +50,12 @@ public class UserEntity {
     }
 
     public void updateRoleEntitySet(Set<RoleEntity> roleEntitySet) {
+        this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
+    }
+
+    private UserEntity(String username, String email, Set<RoleEntity> roleEntitySet) {
+        this.username = validateUsername(username);
+        this.email = validateEmail(email);
         this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
     }
 

@@ -1,13 +1,13 @@
 package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class PermissionFinder {
 
@@ -18,7 +18,7 @@ public class PermissionFinder {
                 .orElseThrow(() -> new NoSuchElementException("permission not found with id: " + id));
     }
 
-    public Set<PermissionEntity> findAllByIdIn(Set<Long> permissionIds) {
+    public Set<PermissionEntity> findAllByIdInOrThrow(Set<Long> permissionIds) {
         Set<PermissionEntity> permissionEntitySet = permissionRepository.findAllByIdIn(permissionIds);
         if (permissionEntitySet.size() != permissionIds.size()) {
             Set<Long> foundIds = permissionEntitySet.stream()

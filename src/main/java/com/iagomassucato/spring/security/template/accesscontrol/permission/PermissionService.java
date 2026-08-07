@@ -16,17 +16,16 @@ public class PermissionService {
     private final PermissionFinder permissionFinder;
 
     public PermissionResponse create(PermissionRequest permissionRequest){
-        PermissionEntity permissionEntity = toEntity(permissionRequest);
-        PermissionEntity permissionEntitySaved = save(permissionEntity);
-        return PermissionResponse.fromEntity(permissionEntitySaved);
+        PermissionEntity permissionEntity = PermissionEntity.create(permissionRequest.getName());
+        permissionRepository.save(permissionEntity);
+        return PermissionResponse.fromEntity(permissionEntity);
     }
 
     @Transactional
     public PermissionResponse replace(Long id, PermissionRequest permissionRequest){
         PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(id);
         permissionEntity.updateName(permissionRequest.getName());
-        PermissionEntity permissionEntitySaved = save(permissionEntity);
-        return PermissionResponse.fromEntity(permissionEntitySaved);
+        return PermissionResponse.fromEntity(permissionEntity);
     }
 
     public List<PermissionResponse> findAll() {
@@ -44,15 +43,5 @@ public class PermissionService {
     public void delete(Long id){
         PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(id);
         permissionRepository.delete(permissionEntity);
-    }
-
-    private PermissionEntity toEntity(PermissionRequest permissionRequest){
-        return PermissionEntity.builder()
-                .name(permissionRequest.getName())
-                .build();
-    }
-
-    private PermissionEntity save(PermissionEntity permissionEntity){
-        return permissionRepository.save(permissionEntity);
     }
 }

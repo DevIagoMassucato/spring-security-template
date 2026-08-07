@@ -1,6 +1,5 @@
 package com.iagomassucato.spring.security.template.anime;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
@@ -18,12 +17,15 @@ public class AnimeEntity {
     @Column(nullable = false)
     private String title;
 
-    @Builder
-    public AnimeEntity(String title){
-        this.title = validateTitle(title);
+    public static AnimeEntity create(String title){
+        return new AnimeEntity(title);
     }
 
     public void updateTitle(String title) {
+        this.title = validateTitle(title);
+    }
+
+    private AnimeEntity(String title){
         this.title = validateTitle(title);
     }
 

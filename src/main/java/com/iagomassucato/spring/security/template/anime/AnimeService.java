@@ -13,16 +13,16 @@ public class AnimeService {
     private final AnimeRepository animeRepository;
 
     public AnimeResponse create(AnimeRequest animeRequest){
-        AnimeEntity animeEntity = toEntity(animeRequest);
-        AnimeEntity animeEntitySaved = save(animeEntity);
-        return AnimeResponse.fromEntity(animeEntitySaved);
+        AnimeEntity animeEntity = AnimeEntity.create(animeRequest.getTitle());
+        animeRepository.save(animeEntity);
+        return AnimeResponse.fromEntity(animeEntity);
     }
 
     public AnimeResponse replace(Long id, AnimeRequest animeRequest) {
         AnimeEntity animeEntity = findByIdOrThrow(id);
         animeEntity.updateTitle(animeRequest.getTitle());
-        AnimeEntity animeEntitySaved = save(animeEntity);
-        return AnimeResponse.fromEntity(animeEntitySaved);
+        animeRepository.save(animeEntity);
+        return AnimeResponse.fromEntity(animeEntity);
     }
 
     public List<AnimeResponse> findAll() {
@@ -40,16 +40,6 @@ public class AnimeService {
     public void delete(Long id){
         AnimeEntity animeEntity = findByIdOrThrow(id);
         animeRepository.delete(animeEntity);
-    }
-
-    private AnimeEntity toEntity(AnimeRequest animeRequest){
-        return AnimeEntity.builder()
-                .title(animeRequest.getTitle())
-                .build();
-    }
-
-    private AnimeEntity save(AnimeEntity animeEntity){
-        return animeRepository.save(animeEntity);
     }
 
     private AnimeEntity findByIdOrThrow(Long id) {

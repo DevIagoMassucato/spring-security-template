@@ -1,6 +1,5 @@
 package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,12 +24,15 @@ public class PermissionEntity {
     @Column(nullable = false)
     private String name;
 
-    @Builder
-    public PermissionEntity(String name){
-        this.name = validateName(name);
+    public static PermissionEntity create(String name){
+        return new PermissionEntity(name);
     }
 
     public void updateName(String name){
+        this.name = validateName(name);
+    }
+
+    private PermissionEntity(String name){
         this.name = validateName(name);
     }
 
