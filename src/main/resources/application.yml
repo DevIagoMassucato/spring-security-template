@@ -33,9 +33,18 @@ spring:
               - email
               - profile
 
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+    access-token-expiration: 5m
+    refresh-token-expiration: 7d
+
   output:
     ansi:
       enabled: always
+
+notification:
+  url: http://localhost:8086
 
 server:
   port: 8080
