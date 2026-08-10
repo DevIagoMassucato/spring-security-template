@@ -6,12 +6,12 @@ import com.iagomassucato.spring.security.template.security.jwt.JwtService;
 import com.iagomassucato.spring.security.template.security.jwt.JwtToken;
 import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenService;
 import com.iagomassucato.spring.security.template.security.userdetails.UserDetailsImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component

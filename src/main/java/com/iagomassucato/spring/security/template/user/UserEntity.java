@@ -1,10 +1,10 @@
 package com.iagomassucato.spring.security.template.user;
 
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.persistence.*;
 import java.util.Set;
 
 @Entity

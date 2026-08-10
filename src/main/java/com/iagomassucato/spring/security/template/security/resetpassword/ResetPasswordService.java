@@ -7,9 +7,9 @@ import com.iagomassucato.spring.security.template.security.credential.Credential
 import com.iagomassucato.spring.security.template.security.credential.CredentialUpdater;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import com.iagomassucato.spring.security.template.user.UserFinder;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
 import java.security.SecureRandom;
 import java.util.NoSuchElementException;
 

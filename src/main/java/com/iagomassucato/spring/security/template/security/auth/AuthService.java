@@ -31,5 +31,4 @@ public class AuthService {
         refreshTokenService.create(refreshToken, userDetailsImpl.getUserEntity());
         return new AuthResponse(accessToken.getToken(), refreshToken.getToken());
     }
-
 }

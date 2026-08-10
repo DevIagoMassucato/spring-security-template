@@ -1,7 +1,7 @@
 package com.iagomassucato.spring.security.template.security.me;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import javax.validation.constraints.NotBlank;
 
 @Getter
 public class MeRequest {

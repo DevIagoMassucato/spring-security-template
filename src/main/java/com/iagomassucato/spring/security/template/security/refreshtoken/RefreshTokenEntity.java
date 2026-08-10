@@ -1,11 +1,11 @@
 package com.iagomassucato.spring.security.template.security.refreshtoken;
 
 import com.iagomassucato.spring.security.template.user.UserEntity;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(
@@ -30,15 +30,15 @@ public class RefreshTokenEntity {
     private UserEntity userEntity;
 
     @Column(nullable = false)
-    private LocalDateTime expirationDate;
+    private Instant expirationDate;
 
-    private RefreshTokenEntity(String tokenId, UserEntity userEntity, LocalDateTime expirationDate) {
+    private RefreshTokenEntity(String tokenId, UserEntity userEntity, Instant expirationDate) {
         this.tokenId = validateTokenId(tokenId);
         this.userEntity = validateUserEntity(userEntity);
         this.expirationDate = validateExpirationDate(expirationDate);
     }
 
-    public static RefreshTokenEntity create(String tokenId, UserEntity userEntity, LocalDateTime expirationDate) {
+    public static RefreshTokenEntity create(String tokenId, UserEntity userEntity, Instant expirationDate) {
         return new RefreshTokenEntity(tokenId, userEntity, expirationDate);
     }
 
@@ -53,10 +53,11 @@ public class RefreshTokenEntity {
         if (userEntity == null) {
             throw new IllegalArgumentException("userEntity is required");
         }
+
         return userEntity;
     }
 
-    private LocalDateTime validateExpirationDate(LocalDateTime expirationDate) {
+    private Instant validateExpirationDate(Instant expirationDate) {
         if (expirationDate == null) {
             throw new IllegalArgumentException("expirationDate is required");
         }

@@ -1,8 +1,8 @@
 package com.iagomassucato.spring.security.template.anime;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.persistence.*;
 
 @Entity
 @Table(name = "animes")

@@ -5,10 +5,10 @@ import com.iagomassucato.spring.security.template.security.userdetails.UserDetai
 import com.iagomassucato.spring.security.template.shared.PatchValidator;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import com.iagomassucato.spring.security.template.user.UserFinder;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor

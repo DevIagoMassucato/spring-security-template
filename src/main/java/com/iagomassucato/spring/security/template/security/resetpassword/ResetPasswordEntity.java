@@ -1,9 +1,9 @@
 package com.iagomassucato.spring.security.template.security.resetpassword;
 
 import com.iagomassucato.spring.security.template.user.UserEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity

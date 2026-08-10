@@ -1,10 +1,10 @@
 package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 

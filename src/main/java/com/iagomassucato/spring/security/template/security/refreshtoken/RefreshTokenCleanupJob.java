@@ -1,9 +1,9 @@
 package com.iagomassucato.spring.security.template.security.refreshtoken;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 @Component

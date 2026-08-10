@@ -1,8 +1,8 @@
 package com.iagomassucato.spring.security.template.security.resetpassword;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor

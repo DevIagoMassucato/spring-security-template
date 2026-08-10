@@ -5,10 +5,10 @@ import com.iagomassucato.spring.security.template.security.jwt.JwtService;
 import com.iagomassucato.spring.security.template.security.jwt.JwtToken;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class RefreshTokenService {
         }
         String tokenId = jwtService.getTokenId(claims);
         RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenIdOrThrow(tokenId);
-        if (refreshTokenEntity.getExpirationDate().isBefore(LocalDateTime.now())) {
+        if (refreshTokenEntity.getExpirationDate().isBefore(Instant.now())) {
             throw new RuntimeException("refresh token expired");
         }
         UserEntity userEntity = refreshTokenEntity.getUserEntity();

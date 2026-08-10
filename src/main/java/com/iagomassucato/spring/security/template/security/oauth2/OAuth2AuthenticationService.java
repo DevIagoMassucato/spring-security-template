@@ -6,12 +6,12 @@ import com.iagomassucato.spring.security.template.security.credential.Credential
 import com.iagomassucato.spring.security.template.security.userdetails.UserDetailsImpl;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import com.iagomassucato.spring.security.template.user.UserFinder;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
 import java.util.Map;
 
 @Service

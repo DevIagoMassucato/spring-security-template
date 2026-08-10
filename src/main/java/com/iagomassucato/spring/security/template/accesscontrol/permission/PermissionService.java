@@ -1,9 +1,9 @@
 package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -1,9 +1,9 @@
 package com.iagomassucato.spring.security.template.security.resetpassword;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth/forgot-password")

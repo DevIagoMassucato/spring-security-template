@@ -1,10 +1,10 @@
 package com.iagomassucato.spring.security.template.security.credential;
 
 import com.iagomassucato.spring.security.template.user.UserEntity;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.persistence.*;
 
 @Entity
 @Table(
