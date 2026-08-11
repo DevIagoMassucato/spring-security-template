@@ -16,7 +16,7 @@ public class PermissionService {
     private final PermissionFinder permissionFinder;
 
     public PermissionResponse create(PermissionRequest permissionRequest){
-        PermissionEntity permissionEntity = PermissionEntity.create(permissionRequest.getName());
+        PermissionEntity permissionEntity = PermissionEntity.create(permissionRequest.name());
         permissionRepository.save(permissionEntity);
         return PermissionResponse.fromEntity(permissionEntity);
     }
@@ -24,7 +24,7 @@ public class PermissionService {
     @Transactional
     public PermissionResponse replace(Long id, PermissionRequest permissionRequest){
         PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(id);
-        permissionEntity.updateName(permissionRequest.getName());
+        permissionEntity.updateName(permissionRequest.name());
         return PermissionResponse.fromEntity(permissionEntity);
     }
 

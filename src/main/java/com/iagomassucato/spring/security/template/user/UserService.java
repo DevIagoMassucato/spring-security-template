@@ -30,12 +30,12 @@ public class UserService {
     @Transactional
     public UserResponse create(UserRequest userRequest) {
         UserEntity userEntity = UserEntity.create(
-                userRequest.getUsername(),
-                userRequest.getEmail(),
-                findRolesByIds(userRequest.getRoleIds())
+                userRequest.username(),
+                userRequest.email(),
+                findRolesByIds(userRequest.roleIds())
         );
         userRepository.save(userEntity);
-        credentialCreator.createLocal(userEntity, userRequest.getPassword());
+        credentialCreator.createLocal(userEntity, userRequest.password());
         return UserResponse.fromEntity(userEntity);
     }
 
@@ -43,19 +43,19 @@ public class UserService {
     public UserResponse update(Long id, UserPatchRequest userPatchRequest) {
         patchValidator.validate(userPatchRequest);
         UserEntity userEntity = userFinder.findByIdOrThrow(id);
-        if (userPatchRequest.getUsername() != null) {
-            userEntity.updateUsername(userPatchRequest.getUsername());
+        if (userPatchRequest.username() != null) {
+            userEntity.updateUsername(userPatchRequest.username());
         }
-        if (userPatchRequest.getEmail() != null) {
-            userEntity.updateEmail(userPatchRequest.getEmail());
+        if (userPatchRequest.email() != null) {
+            userEntity.updateEmail(userPatchRequest.email());
         }
-        if (userPatchRequest.getRoleIds() != null && !userPatchRequest.getRoleIds().isEmpty()) {
-            userEntity.updateRoleEntitySet(findRolesByIds(userPatchRequest.getRoleIds()));
+        if (userPatchRequest.roleIds() != null && !userPatchRequest.roleIds().isEmpty()) {
+            userEntity.updateRoleEntitySet(findRolesByIds(userPatchRequest.roleIds()));
         }
-        if (userPatchRequest.getPassword() != null) {
+        if (userPatchRequest.password() != null) {
             CredentialEntity credentialEntity = credentialFinder
                     .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
-            credentialUpdater.updatePassword(credentialEntity, userPatchRequest.getPassword());
+            credentialUpdater.updatePassword(credentialEntity, userPatchRequest.password());
             refreshTokenDeleter.deleteByUser(userEntity);
         }
         return UserResponse.fromEntity(userEntity);
@@ -64,12 +64,12 @@ public class UserService {
     @Transactional
     public UserResponse replace(Long id, UserRequest userRequest) {
         UserEntity userEntity = userFinder.findByIdOrThrow(id);
-        userEntity.updateUsername(userRequest.getUsername());
-        userEntity.updateEmail(userRequest.getEmail());
-        userEntity.updateRoleEntitySet(findRolesByIds(userRequest.getRoleIds()));
+        userEntity.updateUsername(userRequest.username());
+        userEntity.updateEmail(userRequest.email());
+        userEntity.updateRoleEntitySet(findRolesByIds(userRequest.roleIds()));
         CredentialEntity credentialEntity = credentialFinder
                 .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
-        credentialUpdater.updatePassword(credentialEntity, userRequest.getPassword());
+        credentialUpdater.updatePassword(credentialEntity, userRequest.password());
         refreshTokenDeleter.deleteByUser(userEntity);
         return UserResponse.fromEntity(userEntity);
     }

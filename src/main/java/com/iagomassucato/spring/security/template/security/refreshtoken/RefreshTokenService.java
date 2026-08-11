@@ -30,7 +30,7 @@ public class RefreshTokenService {
 
     @Transactional
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
-        String refreshToken = refreshTokenRequest.getRefreshToken();
+        String refreshToken = refreshTokenRequest.refreshToken();
         Claims claims = jwtService.getClaims(refreshToken);
         if (!jwtService.isRefreshToken(claims)) {
             throw new RuntimeException("invalid refresh token type");
@@ -52,7 +52,7 @@ public class RefreshTokenService {
     }
 
     public void delete(RefreshTokenRequest refreshTokenRequest) {
-        Claims claims = jwtService.getClaims(refreshTokenRequest.getRefreshToken());
+        Claims claims = jwtService.getClaims(refreshTokenRequest.refreshToken());
         String tokenId = jwtService.getTokenId(claims);
         RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenIdOrThrow(tokenId);
         refreshTokenDeleter.delete(refreshTokenEntity);

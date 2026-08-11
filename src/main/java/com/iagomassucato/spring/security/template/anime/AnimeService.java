@@ -13,14 +13,14 @@ public class AnimeService {
     private final AnimeRepository animeRepository;
 
     public AnimeResponse create(AnimeRequest animeRequest){
-        AnimeEntity animeEntity = AnimeEntity.create(animeRequest.getTitle());
+        AnimeEntity animeEntity = AnimeEntity.create(animeRequest.title());
         animeRepository.save(animeEntity);
         return AnimeResponse.fromEntity(animeEntity);
     }
 
     public AnimeResponse replace(Long id, AnimeRequest animeRequest) {
         AnimeEntity animeEntity = findByIdOrThrow(id);
-        animeEntity.updateTitle(animeRequest.getTitle());
+        animeEntity.updateTitle(animeRequest.title());
         animeRepository.save(animeEntity);
         return AnimeResponse.fromEntity(animeEntity);
     }

@@ -1,14 +1,9 @@
 package com.iagomassucato.spring.security.template.anime;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@AllArgsConstructor
-@Getter
-public class AnimeResponse {
-    private final Long id;
-    private final String title;
-
+public record AnimeResponse(
+        Long id,
+        String title
+) {
     public static AnimeResponse fromEntity(AnimeEntity animeEntity) {
         return new AnimeResponse(
                 animeEntity.getId(),

@@ -1,15 +1,14 @@
 package com.iagomassucato.spring.security.template.user;
 
 import com.iagomassucato.spring.security.template.shared.PatchRequest;
-import lombok.Getter;
 import java.util.Set;
 
-@Getter
-public class UserPatchRequest implements PatchRequest {
-    private String username;
-    private String password;
-    private String email;
-    private Set<Long> roleIds;
+public record UserPatchRequest(
+        String username,
+        String password,
+        String email,
+        Set<Long> roleIds
+) implements PatchRequest {
 
     @Override
     public boolean hasFieldsToUpdate() {

@@ -21,8 +21,8 @@ public class RoleService {
 
     public RoleResponse create(RoleRequest roleRequest){
         RoleEntity roleEntity = RoleEntity.create(
-                roleRequest.getName(),
-                findPermissionsByIds(roleRequest.getPermissionIds())
+                roleRequest.name(),
+                findPermissionsByIds(roleRequest.permissionIds())
         );
         roleRepository.save(roleEntity);
         return RoleResponse.fromEntity(roleEntity);
@@ -45,8 +45,8 @@ public class RoleService {
     @Transactional
     public RoleResponse replace(Long id, RoleRequest roleRequest) {
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
-        roleEntity.updateName(roleRequest.getName());
-        roleEntity.updatePermissionEntitySet(findPermissionsByIds(roleRequest.getPermissionIds()));
+        roleEntity.updateName(roleRequest.name());
+        roleEntity.updatePermissionEntitySet(findPermissionsByIds(roleRequest.permissionIds()));
         roleRepository.save(roleEntity);
         return RoleResponse.fromEntity(roleEntity);
     }

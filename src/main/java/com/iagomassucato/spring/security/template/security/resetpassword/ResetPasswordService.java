@@ -29,7 +29,7 @@ public class ResetPasswordService {
 
     @Transactional
     public ResetPasswordResponse forgotPassword(ResetPasswordRequest resetPasswordRequest) {
-        UserEntity userEntity = userFinder.findByUsernameOptional(resetPasswordRequest.getUsername()).orElse(null);
+        UserEntity userEntity = userFinder.findByUsernameOptional(resetPasswordRequest.username()).orElse(null);
         if (userEntity != null) {
             resetPasswordRepository.deleteByUserEntityAndUsedFalse(userEntity);
             String code = generateCode();
@@ -46,14 +46,14 @@ public class ResetPasswordService {
 
     @Transactional
     public void resetPassword(ConfirmPasswordResetRequest confirmPasswordResetRequest) {
-        UserEntity userEntity = userFinder.findByUsernameOrThrow(confirmPasswordResetRequest.getUsername());
+        UserEntity userEntity = userFinder.findByUsernameOrThrow(confirmPasswordResetRequest.username());
         ResetPasswordEntity resetPasswordEntity = resetPasswordRepository
-                .findByUserEntityAndCode(userEntity, confirmPasswordResetRequest.getCode())
+                .findByUserEntityAndCode(userEntity, confirmPasswordResetRequest.code())
                 .orElseThrow(() -> new NoSuchElementException("invalid code"));
         resetPasswordEntity.validateCodeStatus();
         CredentialEntity credentialEntity = credentialFinder
                 .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
-        credentialUpdater.updatePassword(credentialEntity, confirmPasswordResetRequest.getNewPassword());
+        credentialUpdater.updatePassword(credentialEntity, confirmPasswordResetRequest.newPassword());
         resetPasswordEntity.markAsUsed();
         resetPasswordRepository.save(resetPasswordEntity);
     }

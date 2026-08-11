@@ -26,15 +26,15 @@ public class MeService {
         UserEntity userEntity = getAuthenticatedUser();
         CredentialEntity credentialEntity = credentialFinder
                 .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
-        credentialValidator.validateCurrentPassword(credentialEntity, mePatchRequest.getCurrentPassword());
-        if (mePatchRequest.getUsername() != null) {
-            userEntity.updateUsername(mePatchRequest.getUsername());
+        credentialValidator.validateCurrentPassword(credentialEntity, mePatchRequest.currentPassword());
+        if (mePatchRequest.username() != null) {
+            userEntity.updateUsername(mePatchRequest.username());
         }
-        if (mePatchRequest.getEmail() != null) {
-            userEntity.updateEmail(mePatchRequest.getEmail());
+        if (mePatchRequest.email() != null) {
+            userEntity.updateEmail(mePatchRequest.email());
         }
-        if (mePatchRequest.getPassword() != null) {
-            credentialUpdater.updatePassword(credentialEntity, mePatchRequest.getPassword());
+        if (mePatchRequest.password() != null) {
+            credentialUpdater.updatePassword(credentialEntity, mePatchRequest.password());
         }
         return MeResponse.fromEntity(userEntity);
     }
@@ -44,10 +44,10 @@ public class MeService {
         UserEntity userEntity = getAuthenticatedUser();
         CredentialEntity credentialEntity = credentialFinder
                 .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
-        credentialValidator.validateCurrentPassword(credentialEntity, meRequest.getCurrentPassword());
-        userEntity.updateUsername(meRequest.getUsername());
-        userEntity.updateEmail(meRequest.getEmail());
-        credentialUpdater.updatePassword(credentialEntity, meRequest.getPassword());
+        credentialValidator.validateCurrentPassword(credentialEntity, meRequest.currentPassword());
+        userEntity.updateUsername(meRequest.username());
+        userEntity.updateEmail(meRequest.email());
+        credentialUpdater.updatePassword(credentialEntity, meRequest.password());
         return MeResponse.fromEntity(userEntity);
     }
 
