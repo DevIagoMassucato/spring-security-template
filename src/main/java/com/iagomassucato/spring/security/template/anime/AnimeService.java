@@ -1,6 +1,8 @@
 package com.iagomassucato.spring.security.template.anime;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -32,11 +34,13 @@ public class AnimeService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "animes", key = "#id")
     public AnimeResponse findById(Long id) {
         AnimeEntity animeEntity = findByIdOrThrow(id);
         return AnimeResponse.fromEntity(animeEntity);
     }
 
+    @CacheEvict(value = "animes", key = "#id")
     public void delete(Long id){
         AnimeEntity animeEntity = findByIdOrThrow(id);
         animeRepository.delete(animeEntity);
