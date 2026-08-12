@@ -17,6 +17,14 @@ spring:
     deserialization:
       fail-on-unknown-properties: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+    session:
+      timeout: 30m
+
   security:
     oauth2:
       client:
