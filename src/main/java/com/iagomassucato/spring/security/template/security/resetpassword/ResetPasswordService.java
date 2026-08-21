@@ -7,6 +7,7 @@ import com.iagomassucato.spring.security.template.security.credential.Credential
 import com.iagomassucato.spring.security.template.security.credential.CredentialUpdater;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import com.iagomassucato.spring.security.template.user.UserFinder;
+import com.iagomassucato.spring.security.template.user.UserSessionRevoker;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ResetPasswordService {
     private final UserFinder userFinder;
     private final CredentialFinder credentialFinder;
     private final CredentialUpdater credentialUpdater;
+    private final UserSessionRevoker userSessionRevoker;
 
 
 
@@ -52,10 +54,11 @@ public class ResetPasswordService {
                 .orElseThrow(() -> new NoSuchElementException("invalid code"));
         resetPasswordEntity.validateCodeStatus();
         CredentialEntity credentialEntity = credentialFinder
-                .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
+                .findByUserEntityAndCredentialProviderOrThrow(userEntity, CredentialProvider.LOCAL);
         credentialUpdater.updatePassword(credentialEntity, confirmPasswordResetRequest.newPassword());
         resetPasswordEntity.markAsUsed();
         resetPasswordRepository.save(resetPasswordEntity);
+        userSessionRevoker.revokeAll(userEntity);
     }
 
     private String generateCode() {

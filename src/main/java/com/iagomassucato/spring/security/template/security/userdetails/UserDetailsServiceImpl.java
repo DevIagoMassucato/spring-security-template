@@ -31,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(UserEntity userEntity) {
-        CredentialEntity credentialEntity = credentialFinder.findByUserEntityAndCredentialProvideOrThrow(
+        CredentialEntity credentialEntity = credentialFinder.findByUserEntityAndCredentialProviderOrThrow(
                 userEntity,
                 CredentialProvider.LOCAL
         );
