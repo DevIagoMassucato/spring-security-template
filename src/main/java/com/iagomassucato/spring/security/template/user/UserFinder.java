@@ -2,6 +2,7 @@ package com.iagomassucato.spring.security.template.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -28,5 +29,9 @@ public class UserFinder {
 
     public Optional<UserEntity> findByUsernameOptional(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public List<UserEntity> findAll() {
+        return userRepository.findAll();
     }
 }

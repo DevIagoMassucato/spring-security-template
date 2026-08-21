@@ -4,13 +4,13 @@ import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleFinder;
 import com.iagomassucato.spring.security.template.security.credential.*;
 import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenDeleter;
+import com.iagomassucato.spring.security.template.security.session.SessionRevoker;
 import com.iagomassucato.spring.security.template.shared.PatchValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,14 +18,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserFinder userFinder;
+    private final UserSessionRevoker userSessionRevoker;
     private final RoleFinder roleFinder;
     private final CredentialFinder credentialFinder;
     private final CredentialCreator credentialCreator;
     private final CredentialUpdater credentialUpdater;
     private final CredentialDeleter credentialDeleter;
-    private final RefreshTokenDeleter refreshTokenDeleter;
     private final PatchValidator patchValidator;
-
 
     @Transactional
     public UserResponse create(UserRequest userRequest) {
@@ -54,9 +53,9 @@ public class UserService {
         }
         if (userPatchRequest.password() != null) {
             CredentialEntity credentialEntity = credentialFinder
-                    .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
+                    .findByUserEntityAndCredentialProviderOrThrow(userEntity, CredentialProvider.LOCAL);
             credentialUpdater.updatePassword(credentialEntity, userPatchRequest.password());
-            refreshTokenDeleter.deleteByUser(userEntity);
+            userSessionRevoker.revokeAll(userEntity);
         }
         return UserResponse.fromEntity(userEntity);
     }
@@ -68,17 +67,17 @@ public class UserService {
         userEntity.updateEmail(userRequest.email());
         userEntity.updateRoleEntitySet(findRolesByIds(userRequest.roleIds()));
         CredentialEntity credentialEntity = credentialFinder
-                .findByUserEntityAndCredentialProvideOrThrow(userEntity, CredentialProvider.LOCAL);
+                .findByUserEntityAndCredentialProviderOrThrow(userEntity, CredentialProvider.LOCAL);
         credentialUpdater.updatePassword(credentialEntity, userRequest.password());
-        refreshTokenDeleter.deleteByUser(userEntity);
+        userSessionRevoker.revokeAll(userEntity);
         return UserResponse.fromEntity(userEntity);
     }
 
     public List<UserResponse> findAll() {
-        return userRepository.findAll()
+        return userFinder.findAll()
                 .stream()
                 .map(UserResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public UserResponse findById(Long id) {
@@ -89,7 +88,6 @@ public class UserService {
     @Transactional
     public void delete(Long id) {
         UserEntity userEntity = userFinder.findByIdOrThrow(id);
-        refreshTokenDeleter.deleteByUser(userEntity);
         credentialDeleter.deleteByUser(userEntity);
         userRepository.delete(userEntity);
     }
