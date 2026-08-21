@@ -1,6 +1,6 @@
 package com.iagomassucato.spring.security.template.security.refreshtoken;
 
-import com.iagomassucato.spring.security.template.user.UserEntity;
+import com.iagomassucato.spring.security.template.security.session.SessionEntity;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,7 +11,8 @@ import java.time.Instant;
 @Table(
         name = "refresh_tokens",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_refresh_tokens_token_id", columnNames = "token_id")
+                @UniqueConstraint(name = "uk_refresh_tokens_token_id", columnNames = "token_id"),
+                @UniqueConstraint(name = "uk_refresh_tokens_session_id", columnNames = "session_id")
         })
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -25,21 +26,22 @@ public class RefreshTokenEntity {
     @Column(name = "token_id", nullable = false, length = 36)
     private String tokenId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity userEntity;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "session_id", nullable = false)
+    private SessionEntity sessionEntity;
 
     @Column(nullable = false)
     private Instant expirationDate;
 
-    private RefreshTokenEntity(String tokenId, UserEntity userEntity, Instant expirationDate) {
-        this.tokenId = validateTokenId(tokenId);
-        this.userEntity = validateUserEntity(userEntity);
-        this.expirationDate = validateExpirationDate(expirationDate);
+
+    public static RefreshTokenEntity create(String tokenId, SessionEntity sessionEntity, Instant expirationDate) {
+        return new RefreshTokenEntity(tokenId, sessionEntity, expirationDate);
     }
 
-    public static RefreshTokenEntity create(String tokenId, UserEntity userEntity, Instant expirationDate) {
-        return new RefreshTokenEntity(tokenId, userEntity, expirationDate);
+    private RefreshTokenEntity(String tokenId, SessionEntity sessionEntity, Instant expirationDate) {
+        this.tokenId = validateTokenId(tokenId);
+        this.sessionEntity = validateSessionEntity(sessionEntity);
+        this.expirationDate = validateExpirationDate(expirationDate);
     }
 
     private String validateTokenId(String tokenId) {
@@ -49,12 +51,12 @@ public class RefreshTokenEntity {
         return tokenId;
     }
 
-    private UserEntity validateUserEntity(UserEntity userEntity) {
-        if (userEntity == null) {
-            throw new IllegalArgumentException("userEntity is required");
+    private SessionEntity validateSessionEntity(SessionEntity sessionEntity) {
+        if (sessionEntity == null) {
+            throw new IllegalArgumentException("sessionEntity is required");
         }
 
-        return userEntity;
+        return sessionEntity;
     }
 
     private Instant validateExpirationDate(Instant expirationDate) {

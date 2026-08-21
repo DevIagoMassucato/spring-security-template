@@ -11,9 +11,7 @@ public class RefreshTokenFinder {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public RefreshTokenEntity findByTokenIdOrThrow(String tokenId) {
-        return refreshTokenRepository
-                .findByTokenId(tokenId)
-                .orElseThrow(() ->
-                        new NoSuchElementException("refresh token not found"));
+        return refreshTokenRepository.findByTokenId(tokenId)
+                .orElseThrow(() -> new NoSuchElementException("refresh token not found"));
     }
 }
