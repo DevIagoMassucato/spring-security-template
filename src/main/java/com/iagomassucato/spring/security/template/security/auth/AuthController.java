@@ -2,6 +2,7 @@ package com.iagomassucato.spring.security.template.security.auth;
 
 import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenRequest;
 import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,11 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
-        AuthResponse authResponse = authService.login(authRequest);
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody AuthRequest authRequest,
+            HttpServletRequest httpServletRequest
+    ) {
+        AuthResponse authResponse = authService.login(authRequest, httpServletRequest);
         return ResponseEntity.ok(authResponse);
     }
 
@@ -32,7 +36,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
-        refreshTokenService.delete(refreshTokenRequest);
+        refreshTokenService.logout(refreshTokenRequest);
         return ResponseEntity.noContent().build();
     }
 }
