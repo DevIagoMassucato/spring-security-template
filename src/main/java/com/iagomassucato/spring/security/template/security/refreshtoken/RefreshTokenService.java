@@ -3,58 +3,54 @@ package com.iagomassucato.spring.security.template.security.refreshtoken;
 import com.iagomassucato.spring.security.template.security.auth.AuthResponse;
 import com.iagomassucato.spring.security.template.security.jwt.JwtService;
 import com.iagomassucato.spring.security.template.security.jwt.JwtToken;
-import com.iagomassucato.spring.security.template.user.UserEntity;
+import com.iagomassucato.spring.security.template.security.jwt.JwtValidator;
+import com.iagomassucato.spring.security.template.security.session.SessionEntity;
+import com.iagomassucato.spring.security.template.security.session.SessionValidator;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenCreator refreshTokenCreator;
     private final RefreshTokenFinder refreshTokenFinder;
     private final RefreshTokenDeleter refreshTokenDeleter;
     private final JwtService jwtService;
-
-    public RefreshTokenEntity create(JwtToken jwtToken, UserEntity userEntity) {
-        RefreshTokenEntity refreshTokenEntity = RefreshTokenEntity.create(
-                jwtToken.getTokenId(),
-                userEntity,
-                jwtToken.getExpirationDate()
-        );
-        return refreshTokenRepository.save(refreshTokenEntity);
-    }
+    private final JwtValidator jwtValidator;
+    private final SessionValidator sessionValidator;
 
     @Transactional
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
         String refreshToken = refreshTokenRequest.refreshToken();
         Claims claims = jwtService.getClaims(refreshToken);
-        if (!jwtService.isRefreshToken(claims)) {
-            throw new RuntimeException("invalid refresh token type");
-        }
+        jwtValidator.validateRefreshToken(claims);
         String tokenId = jwtService.getTokenId(claims);
+        Long userId = jwtService.getSubject(claims);
+        Long sessionId = jwtService.getSessionId(claims);
         RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenIdOrThrow(tokenId);
-        if (refreshTokenEntity.getExpirationDate().isBefore(Instant.now())) {
-            throw new RuntimeException("refresh token expired");
-        }
-        UserEntity userEntity = refreshTokenEntity.getUserEntity();
+        SessionEntity sessionEntity = refreshTokenEntity.getSessionEntity();
+        sessionValidator.validate(sessionEntity, userId, sessionId);
         refreshTokenDeleter.delete(refreshTokenEntity);
-        JwtToken newAccessToken = jwtService.generateAccessToken(userEntity);
-        JwtToken newRefreshToken = jwtService.generateRefreshToken(userEntity);
-        create(newRefreshToken, userEntity);
-        return new AuthResponse(
-                newAccessToken.getToken(),
-                newRefreshToken.getToken()
-        );
+        JwtToken newAccessToken = jwtService.generateAccessToken(userId, sessionId);
+        JwtToken newRefreshToken = jwtService.generateRefreshToken(userId, sessionId);
+        refreshTokenCreator.create(newRefreshToken, sessionEntity);
+        return new AuthResponse(newAccessToken.token(), newRefreshToken.token());
     }
 
-    public void delete(RefreshTokenRequest refreshTokenRequest) {
+    @Transactional
+    public void logout(RefreshTokenRequest refreshTokenRequest) {
         Claims claims = jwtService.getClaims(refreshTokenRequest.refreshToken());
+        jwtValidator.validateRefreshToken(claims);
         String tokenId = jwtService.getTokenId(claims);
+        Long userId = jwtService.getSubject(claims);
+        Long sessionId = jwtService.getSessionId(claims);
         RefreshTokenEntity refreshTokenEntity = refreshTokenFinder.findByTokenIdOrThrow(tokenId);
+        SessionEntity sessionEntity = refreshTokenEntity.getSessionEntity();
+        sessionValidator.validate(sessionEntity, userId, sessionId);
         refreshTokenDeleter.delete(refreshTokenEntity);
+        sessionEntity.revoke();
     }
 }
