@@ -21,6 +21,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final JwtValidator jwtValidator;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Override
@@ -35,13 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String token = authorizationHeader.substring(7);
         try {
+            String token = authorizationHeader.substring(7);
             Claims claims = jwtService.getClaims(token);
-            if (!jwtService.isAccessToken(claims)) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                return;
-            }
+            jwtValidator.validateAccessToken(claims);
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 authenticate(claims, request);
             }
@@ -55,12 +53,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void authenticate(Claims claims, HttpServletRequest request) {
         Long userId = jwtService.getSubject(claims);
         UserDetails userDetails = userDetailsServiceImpl.loadUserById(userId);
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+                = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
     }
