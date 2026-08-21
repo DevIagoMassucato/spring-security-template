@@ -11,7 +11,7 @@ public class CredentialFinder {
 
     private final CredentialRepository credentialRepository;
 
-    public CredentialEntity findByUserEntityAndCredentialProvideOrThrow(
+    public CredentialEntity findByUserEntityAndCredentialProviderOrThrow(
             UserEntity userEntity,
             CredentialProvider credentialProvider
     ) {
