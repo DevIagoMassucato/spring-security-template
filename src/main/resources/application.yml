@@ -17,11 +17,14 @@ spring:
     deserialization:
       fail-on-unknown-properties: true
 
+  output:
+    ansi:
+      enabled: always
+
   data:
     redis:
       host: localhost
       port: 6379
-
     session:
       timeout: 30m
 
@@ -37,14 +40,14 @@ spring:
               - profile
 
 security:
+
   jwt:
     secret-key: ${JWT_SECRET_KEY}
     access-token-expiration: 5m
     refresh-token-expiration: 7d
 
-  output:
-    ansi:
-      enabled: always
+  session:
+    expiration: 7d
 
 notification:
   url: http://localhost:8086
