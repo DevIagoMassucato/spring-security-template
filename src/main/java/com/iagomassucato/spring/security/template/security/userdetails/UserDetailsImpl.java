@@ -1,5 +1,6 @@
 package com.iagomassucato.spring.security.template.security.userdetails;
 
+import com.iagomassucato.spring.security.template.security.authority.AuthorityMapper;
 import com.iagomassucato.spring.security.template.security.credential.CredentialEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import lombok.Getter;
@@ -17,7 +18,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityMapper.map(userEntity);
+        return AuthorityMapper.fromUserEntity(userEntity);
     }
 
     @Override

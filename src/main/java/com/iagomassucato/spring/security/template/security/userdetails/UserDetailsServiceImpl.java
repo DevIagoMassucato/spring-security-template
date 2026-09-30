@@ -25,11 +25,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return createUserDetails(userEntity);
     }
 
-    public UserDetails loadUserById(Long id) {
-        UserEntity userEntity = userFinder.findByIdOrThrow(id);
-        return createUserDetails(userEntity);
-    }
-
     private UserDetails createUserDetails(UserEntity userEntity) {
         CredentialEntity credentialEntity = credentialFinder.findByUserEntityAndCredentialProviderOrThrow(
                 userEntity,
