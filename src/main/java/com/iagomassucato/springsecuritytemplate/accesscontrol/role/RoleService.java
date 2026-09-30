@@ -1,0 +1,86 @@
+package com.iagomassucato.springsecuritytemplate.accesscontrol.role;
+
+import com.iagomassucato.springsecuritytemplate.accesscontrol.permission.PermissionEntity;
+import com.iagomassucato.springsecuritytemplate.accesscontrol.permission.PermissionFinder;
+import com.iagomassucato.springsecuritytemplate.shared.PatchValidator;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class RoleService {
+
+    private final RoleRepository roleRepository;
+    private final RoleFinder roleFinder;
+    private final PermissionFinder permissionFinder;
+    private final PatchValidator patchValidator;
+
+    public RoleResponse create(RoleRequest roleRequest){
+        RoleEntity roleEntity = RoleEntity.create(
+                roleRequest.name(),
+                findPermissionsByIds(roleRequest.permissionIds())
+        );
+        roleRepository.save(roleEntity);
+        return RoleResponse.fromEntity(roleEntity);
+    }
+
+    @Transactional
+    public RoleResponse update(Long id, RolePatchRequest rolePatchRequest) {
+        patchValidator.validate(rolePatchRequest);
+        RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
+        if (rolePatchRequest.name() != null) {
+            roleEntity.updateName(rolePatchRequest.name());
+        }
+        if (rolePatchRequest.permissionIds() != null) {
+            roleEntity.updatePermissionEntitySet(findPermissionsByIds(rolePatchRequest.permissionIds()));
+        }
+        return RoleResponse.fromEntity(roleEntity);
+    }
+
+    @Transactional
+    public RoleResponse replace(Long id, RoleRequest roleRequest) {
+        RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
+        roleEntity.updateName(roleRequest.name());
+        roleEntity.updatePermissionEntitySet(findPermissionsByIds(roleRequest.permissionIds()));
+        return RoleResponse.fromEntity(roleEntity);
+    }
+
+    @Transactional
+    public void addPermission(Long roleId, Long permissionId){
+        RoleEntity roleEntity = roleFinder.findByIdOrThrow(roleId);
+        PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(permissionId);
+        roleEntity.addPermission(permissionEntity);
+    }
+
+    @Transactional
+    public void removePermission(Long roleId, Long permissionId) {
+        RoleEntity roleEntity = roleFinder.findByIdOrThrow(roleId);
+        PermissionEntity permissionEntity = permissionFinder.findByIdOrThrow(permissionId);
+        roleEntity.removePermission(permissionEntity);
+    }
+
+    public List<RoleResponse> findAll(){
+        return roleRepository.findAll()
+                .stream()
+                .map(RoleResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public RoleResponse findById(Long id) {
+        RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
+        return RoleResponse.fromEntity(roleEntity);
+    }
+
+    public void delete(Long id){
+        RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
+        roleRepository.delete(roleEntity);
+    }
+
+    private Set<PermissionEntity> findPermissionsByIds(Set<Long> permissionIds){
+        return permissionFinder.findAllByIdInOrThrow(permissionIds);
+    }
+}

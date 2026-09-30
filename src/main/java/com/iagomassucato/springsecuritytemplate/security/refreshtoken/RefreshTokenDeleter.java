@@ -1,0 +1,31 @@
+package com.iagomassucato.springsecuritytemplate.security.refreshtoken;
+
+import com.iagomassucato.springsecuritytemplate.security.session.SessionEntity;
+import com.iagomassucato.springsecuritytemplate.user.UserEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import java.time.Instant;
+
+@Component
+@RequiredArgsConstructor
+public class RefreshTokenDeleter {
+
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public void delete(RefreshTokenEntity refreshTokenEntity) {
+        refreshTokenRepository.delete(refreshTokenEntity);
+        refreshTokenRepository.flush();
+    }
+
+    public void deleteBySessionEntityUserEntity(UserEntity userEntity) {
+        refreshTokenRepository.deleteBySessionEntityUserEntity(userEntity);
+    }
+
+    public void deleteBySessionEntity(SessionEntity sessionEntity) {
+        refreshTokenRepository.deleteBySessionEntity(sessionEntity);
+    }
+
+    public void deleteByExpiresAtBefore(Instant expiresAt) {
+        refreshTokenRepository.deleteByExpiresAtBefore(expiresAt);
+    }
+}
