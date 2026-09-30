@@ -15,8 +15,12 @@ public class RefreshTokenCreator {
         RefreshTokenEntity refreshTokenEntity = RefreshTokenEntity.create(
                 jwtToken.tokenId(),
                 sessionEntity,
-                jwtToken.expirationDate()
+                jwtToken.issuedAt(),
+                jwtToken.expirationAt()
         );
         return refreshTokenRepository.save(refreshTokenEntity);
     }
 }
+
+// the createdAt column needs to receive the same date the token was issued
+

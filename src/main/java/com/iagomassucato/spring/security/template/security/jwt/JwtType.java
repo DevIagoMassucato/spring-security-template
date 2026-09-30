@@ -1,6 +1,6 @@
 package com.iagomassucato.spring.security.template.security.jwt;
 
-public enum TokenType {
+public enum JwtType {
     ACCESS,
     REFRESH
 }

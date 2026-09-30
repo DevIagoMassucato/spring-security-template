@@ -42,12 +42,17 @@ spring:
 security:
 
   jwt:
+    issuer: ${spring.application.name}
+    audience: ${spring.application.name}
     secret-key: ${JWT_SECRET_KEY}
     access-token-expiration: 5m
     refresh-token-expiration: 7d
 
   session:
     expiration: 7d
+
+  reset-password:
+    expiration: 10m
 
 notification:
   url: http://localhost:8086

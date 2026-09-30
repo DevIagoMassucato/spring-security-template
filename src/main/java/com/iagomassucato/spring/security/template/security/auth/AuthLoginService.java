@@ -1,0 +1,66 @@
+package com.iagomassucato.spring.security.template.security.auth;
+
+import com.iagomassucato.spring.security.template.security.jwt.JwtAuthorityMapper;
+import com.iagomassucato.spring.security.template.security.jwt.JwtGenerator;
+import com.iagomassucato.spring.security.template.security.jwt.JwtToken;
+import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenCreator;
+import com.iagomassucato.spring.security.template.security.session.SessionCreator;
+import com.iagomassucato.spring.security.template.security.session.SessionEntity;
+import com.iagomassucato.spring.security.template.security.userdetails.UserDetailsImpl;
+import com.iagomassucato.spring.security.template.user.UserEntity;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
+import java.util.Collection;
+import java.util.Set;
+
+@Service
+@RequiredArgsConstructor
+public class AuthLoginService {
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtGenerator jwtGenerator;
+    private final RefreshTokenCreator refreshTokenCreator;
+    private final SessionCreator sessionCreator;
+
+    @Transactional
+    public AuthResponse login(AuthRequest authRequest, HttpServletRequest httpServletRequest) {
+        Authentication authentication = authenticate(authRequest);
+        UserDetailsImpl userDetailsImpl = (UserDetailsImpl) authentication.getPrincipal();
+        UserEntity userEntity = userDetailsImpl.getUserEntity();
+        SessionEntity sessionEntity = sessionCreator.create(
+                userEntity,
+                httpServletRequest.getRemoteAddr(),
+                httpServletRequest.getHeader("User-Agent")
+        );
+        Collection<? extends GrantedAuthority> grantedAuthority = authentication.getAuthorities();
+        Set<String> roles = JwtAuthorityMapper.toRoles(grantedAuthority);
+        Set<String> permissions = JwtAuthorityMapper.toPermissions(grantedAuthority);
+        JwtToken accessToken = jwtGenerator.generateAccessToken(
+                userEntity.getId(),
+                sessionEntity.getId(),
+                roles,
+                permissions
+        );
+        JwtToken refreshToken = jwtGenerator.generateRefreshToken(
+                userEntity.getId(),
+                sessionEntity.getId()
+        );
+        refreshTokenCreator.create(refreshToken, sessionEntity);
+        return new AuthResponse(accessToken.token(), refreshToken.token());
+    }
+
+    private Authentication authenticate(AuthRequest authRequest) {
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        authRequest.username(),
+                        authRequest.password()
+                )
+        );
+    }
+}

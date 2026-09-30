@@ -26,7 +26,8 @@ public class OAuth2AuthenticationService {
         String email = validateOAuth2UserAttribute(oAuth2User, OAuth2Attributes.EMAIL);
         String providerId = validateOAuth2UserAttribute(oAuth2User, OAuth2Attributes.PROVIDER_ID);
         UserEntity userEntity = userFinder.findByEmailOrThrow(email);
-        CredentialEntity credentialEntity = credentialRepository.findByUserEntityAndCredentialProvider(
+        CredentialEntity credentialEntity = credentialRepository
+                .findByUserEntityAndCredentialProvider(
                         userEntity,
                         CredentialProvider.GOOGLE
                 ).orElseGet(() -> createCredential(userEntity, providerId));
@@ -50,7 +51,6 @@ public class OAuth2AuthenticationService {
         if (!(principal instanceof OAuth2User oAuth2User)) {
             throw new BadCredentialsException("authenticated principal is not an OAuth2User");
         }
-
         return oAuth2User;
     }
 

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthLoginService authLoginService;
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
@@ -24,7 +24,7 @@ public class AuthController {
             @Valid @RequestBody AuthRequest authRequest,
             HttpServletRequest httpServletRequest
     ) {
-        AuthResponse authResponse = authService.login(authRequest, httpServletRequest);
+        AuthResponse authResponse = authLoginService.login(authRequest, httpServletRequest);
         return ResponseEntity.ok(authResponse);
     }
 
