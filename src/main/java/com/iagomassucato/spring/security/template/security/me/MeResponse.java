@@ -2,13 +2,18 @@ package com.iagomassucato.spring.security.template.security.me;
 
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
+import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public record MeResponse(
         String username,
         String email,
-        Set<String> roles
+        Set<String> roles,
+        Instant createdAt,
+        Instant updatedAt,
+        Long createdBy,
+        Long updatedBy
 ) {
     public static MeResponse fromEntity(UserEntity userEntity) {
         Set<String> roles = userEntity.getRoleEntitySet()
@@ -18,7 +23,11 @@ public record MeResponse(
         return new MeResponse(
                 userEntity.getUsername(),
                 userEntity.getEmail(),
-                roles
+                roles,
+                userEntity.getCreatedAt(),
+                userEntity.getUpdatedAt(),
+                userEntity.getCreatedBy(),
+                userEntity.getUpdatedBy()
         );
     }
 }

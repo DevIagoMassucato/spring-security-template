@@ -21,7 +21,7 @@ public interface SessionRepository extends JpaRepository<SessionEntity, Long> {
             AND s.expiresAt > CURRENT_TIMESTAMP
             ORDER BY s.createdAt DESC
            """)
-    List<SessionEntity> findActiveSessions(@Param("userId") Long userId);
+    List<SessionEntity> findAllActiveSessions(@Param("userId") Long userId);
 
     @Modifying
     @Query("""
@@ -35,6 +35,6 @@ public interface SessionRepository extends JpaRepository<SessionEntity, Long> {
             @Param("revokedAt") Instant revokedAt
     );
 
-    Optional<SessionEntity> findByIdAndUserEntity(Long sessionId, UserEntity userEntity);
+    Optional<SessionEntity> findByIdAndUserEntity_Id(Long sessionId, Long userId);
     void deleteByExpiresAtBefore(Instant expiresAt);
 }

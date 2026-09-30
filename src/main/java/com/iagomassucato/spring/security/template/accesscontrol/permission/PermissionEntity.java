@@ -1,7 +1,8 @@
 package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
+import com.iagomassucato.spring.security.template.shared.AbstractEntity;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,14 +13,9 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(name = "uk_permissions_name", columnNames = "name")
         }
 )
-@NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class PermissionEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class PermissionEntity extends AbstractEntity {
 
     @Column(nullable = false)
     private String name;
@@ -36,10 +32,10 @@ public class PermissionEntity {
         this.name = validateName(name);
     }
 
-    private String validateName(String value) {
-        if (value == null || value.isBlank()) {
+    private String validateName(String name) {
+        if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("name is required");
         }
-        return value.trim().toUpperCase();
+        return name.trim().toUpperCase();
     }
 }

@@ -1,5 +1,7 @@
 package com.iagomassucato.spring.security.template.anime;
 
+import com.iagomassucato.spring.security.template.security.auth.AuthUser;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,17 +15,19 @@ import java.util.stream.Collectors;
 public class AnimeService {
 
     private final AnimeRepository animeRepository;
+    private final AuthUser authUser;
 
     public AnimeResponse create(AnimeRequest animeRequest){
-        AnimeEntity animeEntity = AnimeEntity.create(animeRequest.title());
+        AnimeEntity animeEntity = AnimeEntity.create(animeRequest.title(), authUser.getId());
         animeRepository.save(animeEntity);
         return AnimeResponse.fromEntity(animeEntity);
     }
 
+    @Transactional
     public AnimeResponse replace(Long id, AnimeRequest animeRequest) {
         AnimeEntity animeEntity = findByIdOrThrow(id);
         animeEntity.updateTitle(animeRequest.title());
-        animeRepository.save(animeEntity);
+        animeEntity.updateUpdatedBy(authUser.getId());
         return AnimeResponse.fromEntity(animeEntity);
     }
 

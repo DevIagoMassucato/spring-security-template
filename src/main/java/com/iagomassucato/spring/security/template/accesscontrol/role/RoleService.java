@@ -32,13 +32,12 @@ public class RoleService {
     public RoleResponse update(Long id, RolePatchRequest rolePatchRequest) {
         patchValidator.validate(rolePatchRequest);
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
-        if (rolePatchRequest.getName() != null) {
-            roleEntity.updateName(rolePatchRequest.getName());
+        if (rolePatchRequest.name() != null) {
+            roleEntity.updateName(rolePatchRequest.name());
         }
-        if (rolePatchRequest.getPermissionIds() != null) {
-            roleEntity.updatePermissionEntitySet(findPermissionsByIds(rolePatchRequest.getPermissionIds()));
+        if (rolePatchRequest.permissionIds() != null) {
+            roleEntity.updatePermissionEntitySet(findPermissionsByIds(rolePatchRequest.permissionIds()));
         }
-        roleRepository.save(roleEntity);
         return RoleResponse.fromEntity(roleEntity);
     }
 
@@ -47,7 +46,6 @@ public class RoleService {
         RoleEntity roleEntity = roleFinder.findByIdOrThrow(id);
         roleEntity.updateName(roleRequest.name());
         roleEntity.updatePermissionEntitySet(findPermissionsByIds(roleRequest.permissionIds()));
-        roleRepository.save(roleEntity);
         return RoleResponse.fromEntity(roleEntity);
     }
 

@@ -1,20 +1,18 @@
 package com.iagomassucato.spring.security.template.security.resetpassword;
 
+import com.iagomassucato.spring.security.template.shared.AbstractEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "reset_passwords")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class ResetPasswordEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ResetPasswordEntity extends AbstractEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -27,16 +25,19 @@ public class ResetPasswordEntity {
     private boolean used;
 
     @Column(nullable = false)
-    private OffsetDateTime expiresAt;
+    private Instant expiresAt;
 
-    @Column(nullable = false)
-    private OffsetDateTime createdAt;
-
-    public static ResetPasswordEntity create(UserEntity userEntity, String code) {
+    public static ResetPasswordEntity create(
+            UserEntity userEntity,
+            String code,
+            Instant createdAt,
+            Instant expiresAt
+    ) {
         return new ResetPasswordEntity(
                 userEntity,
                 code,
-                OffsetDateTime.now().plusMinutes(10)
+                createdAt,
+                expiresAt
         );
     }
 
@@ -48,18 +49,17 @@ public class ResetPasswordEntity {
         if (used) {
             throw new IllegalStateException("code already used");
         }
-
-        if (expiresAt.isBefore(OffsetDateTime.now())) {
+        if (!expiresAt.isAfter(Instant.now())) {
             throw new IllegalStateException("code expired");
         }
     }
 
-    private ResetPasswordEntity(UserEntity userEntity, String code, OffsetDateTime expiresAt) {
+    private ResetPasswordEntity(UserEntity userEntity, String code, Instant createdAt, Instant expiresAt) {
+        super(createdAt);
         this.userEntity = validateUserEntity(userEntity);
         this.code = validateCode(code);
         this.used = false;
-        this.expiresAt = validateExpiresAt(expiresAt);
-        this.createdAt = OffsetDateTime.now();
+        this.expiresAt = validateExpiresAt(createdAt, expiresAt);
     }
 
     private UserEntity validateUserEntity(UserEntity userEntity) {
@@ -76,10 +76,15 @@ public class ResetPasswordEntity {
         return code;
     }
 
-    private OffsetDateTime validateExpiresAt(OffsetDateTime expiresAt) {
+    private Instant validateExpiresAt(Instant createdAt, Instant expiresAt) {
         if (expiresAt == null) {
             throw new IllegalArgumentException("expiresAt is required");
         }
+
+        if (!expiresAt.isAfter(createdAt)) {
+            throw new IllegalArgumentException("expiresAt must be after createdAt");
+        }
+
         return expiresAt;
     }
 }

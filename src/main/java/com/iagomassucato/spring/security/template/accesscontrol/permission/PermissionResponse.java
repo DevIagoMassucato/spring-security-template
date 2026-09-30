@@ -1,13 +1,19 @@
 package com.iagomassucato.spring.security.template.accesscontrol.permission;
 
+import java.time.Instant;
+
 public record PermissionResponse(
         Long id,
-        String name
+        String name,
+        Instant createdAt,
+        Instant updatedAt
 ) {
     public static PermissionResponse fromEntity (PermissionEntity permissionEntity){
         return new PermissionResponse(
                 permissionEntity.getId(),
-                permissionEntity.getName()
+                permissionEntity.getName(),
+                permissionEntity.getCreatedAt(),
+                permissionEntity.getUpdatedAt()
         );
     }
 }

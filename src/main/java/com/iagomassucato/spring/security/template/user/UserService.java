@@ -2,9 +2,8 @@ package com.iagomassucato.spring.security.template.user;
 
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleFinder;
+import com.iagomassucato.spring.security.template.security.auth.AuthUser;
 import com.iagomassucato.spring.security.template.security.credential.*;
-import com.iagomassucato.spring.security.template.security.refreshtoken.RefreshTokenDeleter;
-import com.iagomassucato.spring.security.template.security.session.SessionRevoker;
 import com.iagomassucato.spring.security.template.shared.PatchValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +24,15 @@ public class UserService {
     private final CredentialUpdater credentialUpdater;
     private final CredentialDeleter credentialDeleter;
     private final PatchValidator patchValidator;
+    private final AuthUser authUser;
 
     @Transactional
     public UserResponse create(UserRequest userRequest) {
         UserEntity userEntity = UserEntity.create(
                 userRequest.username(),
                 userRequest.email(),
-                findRolesByIds(userRequest.roleIds())
+                findRolesByIds(userRequest.roleIds()),
+                authUser.getId()
         );
         userRepository.save(userEntity);
         credentialCreator.createLocal(userEntity, userRequest.password());
@@ -57,6 +58,7 @@ public class UserService {
             credentialUpdater.updatePassword(credentialEntity, userPatchRequest.password());
             userSessionRevoker.revokeAll(userEntity);
         }
+        userEntity.updateUpdatedBy(authUser.getId());
         return UserResponse.fromEntity(userEntity);
     }
 
@@ -70,6 +72,7 @@ public class UserService {
                 .findByUserEntityAndCredentialProviderOrThrow(userEntity, CredentialProvider.LOCAL);
         credentialUpdater.updatePassword(credentialEntity, userRequest.password());
         userSessionRevoker.revokeAll(userEntity);
+        userEntity.updateUpdatedBy(authUser.getId());
         return UserResponse.fromEntity(userEntity);
     }
 

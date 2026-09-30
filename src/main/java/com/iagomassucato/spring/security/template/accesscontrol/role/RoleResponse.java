@@ -1,22 +1,28 @@
 package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
+import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public record RoleResponse(
         Long id,
         String name,
-        Set<String> permissions
+        Set<String> permissions,
+        Instant createdAt,
+        Instant updatedAt
 ) {
-    public static RoleResponse fromEntity(RoleEntity roleEntity){
+    public static RoleResponse fromEntity(RoleEntity roleEntity) {
+        Set<String> permissions = roleEntity.getPermissionEntitySet()
+                .stream()
+                .map(PermissionEntity::getName)
+                .collect(Collectors.toSet());
         return new RoleResponse(
                 roleEntity.getId(),
                 roleEntity.getName(),
-                roleEntity.getPermissionEntitySet()
-                        .stream()
-                        .map(PermissionEntity::getName)
-                        .collect(Collectors.toSet())
+                permissions,
+                roleEntity.getCreatedAt(),
+                roleEntity.getUpdatedAt()
         );
     }
 }

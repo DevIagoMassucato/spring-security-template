@@ -1,29 +1,22 @@
 package com.iagomassucato.spring.security.template.security.session;
 
+import com.iagomassucato.spring.security.template.shared.AbstractEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Entity
 @Table(name = "sessions")
-@NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class SessionEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class SessionEntity extends AbstractEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity userEntity;
-
-    @Column(nullable = false)
-    private Instant createdAt;
 
     @Column(nullable = false)
     private Instant expiresAt;
@@ -63,11 +56,11 @@ public class SessionEntity {
             String ipAddress,
             String userAgent
     ) {
+        super(createdAt);
         this.userEntity = validateUserEntity(userEntity);
-        this.createdAt = validateCreatedAt(createdAt);
-        this.expiresAt = validateExpiresAt(expiresAt);
-        this.ipAddress = ipAddress;
-        this.userAgent = userAgent;
+        this.expiresAt = validateExpiresAt(createdAt, expiresAt);
+        this.ipAddress = validateString(ipAddress, "ipAddress");
+        this.userAgent = validateString(userAgent, "userAgent");
     }
 
     private UserEntity validateUserEntity(UserEntity userEntity) {
@@ -77,20 +70,23 @@ public class SessionEntity {
         return userEntity;
     }
 
-    private Instant validateCreatedAt(Instant createdAt) {
-        if (createdAt == null) {
-            throw new IllegalArgumentException("createdAt is required");
-        }
-        return createdAt;
-    }
 
-    private Instant validateExpiresAt(Instant expiresAt) {
+    private Instant validateExpiresAt(Instant createdAt, Instant expiresAt) {
         if (expiresAt == null) {
             throw new IllegalArgumentException("expiresAt is required");
         }
+
         if (!expiresAt.isAfter(createdAt)) {
             throw new IllegalArgumentException("expiresAt must be after createdAt");
         }
+
         return expiresAt;
+    }
+
+    private String validateString(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " is required");
+        }
+        return value;
     }
 }

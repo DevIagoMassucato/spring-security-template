@@ -1,6 +1,5 @@
 package com.iagomassucato.spring.security.template.security.session;
 
-import com.iagomassucato.spring.security.template.user.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.List;
@@ -12,12 +11,12 @@ public class SessionFinder {
 
     private final SessionRepository sessionRepository;
 
-    public SessionEntity findByIdAndUserEntityOrThrow(Long sessionId, UserEntity userEntity) {
-        return sessionRepository.findByIdAndUserEntity(sessionId, userEntity)
+    public SessionEntity findByIdAndUserEntity_IdOrThrow(Long sessionId, Long userId) {
+        return sessionRepository.findByIdAndUserEntity_Id(sessionId, userId)
                 .orElseThrow(() -> new NoSuchElementException("session not found with id: " + sessionId));
     }
 
-    public List<SessionEntity> findActiveSessions(Long userId) {
-        return sessionRepository.findActiveSessions(userId);
+    public List<SessionEntity> findAllActiveSessions(Long userId) {
+        return sessionRepository.findAllActiveSessions(userId);
     }
 }

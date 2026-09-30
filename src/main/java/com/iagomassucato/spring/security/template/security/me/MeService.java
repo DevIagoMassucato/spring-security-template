@@ -8,6 +8,7 @@ import com.iagomassucato.spring.security.template.security.session.SessionFinder
 import com.iagomassucato.spring.security.template.security.session.SessionResponse;
 import com.iagomassucato.spring.security.template.shared.PatchValidator;
 import com.iagomassucato.spring.security.template.user.UserEntity;
+import com.iagomassucato.spring.security.template.user.UserFinder;
 import com.iagomassucato.spring.security.template.user.UserSessionRevoker;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MeService {
 
+    private final UserFinder userFinder;
     private final CredentialFinder credentialFinder;
     private final CredentialUpdater credentialUpdater;
     private final CredentialValidator credentialValidator;
@@ -30,7 +32,7 @@ public class MeService {
     @Transactional
     public MeResponse update(MePatchRequest mePatchRequest) {
         patchValidator.validate(mePatchRequest);
-        UserEntity userEntity = authUser.get();
+        UserEntity userEntity = userFinder.findByIdOrThrow(authUser.getId());
         CredentialEntity credentialEntity = credentialFinder
                 .findByUserEntityAndCredentialProviderOrThrow(userEntity, CredentialProvider.LOCAL);
         credentialValidator.validateCurrentPassword(credentialEntity, mePatchRequest.currentPassword());
@@ -44,12 +46,13 @@ public class MeService {
             credentialUpdater.updatePassword(credentialEntity, mePatchRequest.password());
             userSessionRevoker.revokeAll(userEntity);
         }
+        userEntity.updateUpdatedBy(authUser.getId());
         return MeResponse.fromEntity(userEntity);
     }
 
     @Transactional
     public MeResponse replace(MeRequest meRequest) {
-        UserEntity userEntity = authUser.get();
+        UserEntity userEntity = userFinder.findByIdOrThrow(authUser.getId());
         CredentialEntity credentialEntity = credentialFinder
                 .findByUserEntityAndCredentialProviderOrThrow(userEntity, CredentialProvider.LOCAL);
         credentialValidator.validateCurrentPassword(credentialEntity, meRequest.currentPassword());
@@ -57,16 +60,17 @@ public class MeService {
         userEntity.updateEmail(meRequest.email());
         credentialUpdater.updatePassword(credentialEntity, meRequest.password());
         userSessionRevoker.revokeAll(userEntity);
+        userEntity.updateUpdatedBy(authUser.getId());
         return MeResponse.fromEntity(userEntity);
     }
 
     public MeResponse findMe() {
-        return MeResponse.fromEntity(authUser.get());
+        UserEntity userEntity = userFinder.findByIdOrThrow(authUser.getId());
+        return MeResponse.fromEntity(userEntity);
     }
 
     public List<SessionResponse> findActiveSessions() {
-        UserEntity userEntity = authUser.get();
-        return sessionFinder.findActiveSessions(userEntity.getId())
+        return sessionFinder.findAllActiveSessions(authUser.getId())
                 .stream()
                 .map(SessionResponse::fromEntity)
                 .toList();
@@ -74,8 +78,7 @@ public class MeService {
 
     @Transactional
     public void revokeSession(Long sessionId) {
-        UserEntity userEntity = authUser.get();
-        SessionEntity sessionEntity = sessionFinder.findByIdAndUserEntityOrThrow(sessionId, userEntity);
+        SessionEntity sessionEntity = sessionFinder.findByIdAndUserEntity_IdOrThrow(sessionId, authUser.getId());
         sessionEntity.revoke();
         refreshTokenDeleter.deleteBySessionEntity(sessionEntity);
     }

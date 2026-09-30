@@ -1,8 +1,9 @@
 package com.iagomassucato.spring.security.template.user;
 
 import com.iagomassucato.spring.security.template.accesscontrol.role.RoleEntity;
+import com.iagomassucato.spring.security.template.shared.AuditableEntity;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.Set;
@@ -14,14 +15,9 @@ import java.util.Set;
                 @UniqueConstraint(name = "uk_users_username", columnNames = "username"),
                 @UniqueConstraint(name = "uk_users_email", columnNames = "email")
         })
-@NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class UserEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class UserEntity extends AuditableEntity {
 
     @Column(nullable = false)
     private String username;
@@ -37,8 +33,18 @@ public class UserEntity {
     )
     private Set<RoleEntity> roleEntitySet;
 
-    public static UserEntity create(String username, String email, Set<RoleEntity> roleEntitySet){
-        return new UserEntity(username, email, roleEntitySet);
+    public static UserEntity create(
+            String username,
+            String email,
+            Set<RoleEntity> roleEntitySet,
+            Long createdBy
+    ) {
+        return new UserEntity(
+                username,
+                email,
+                roleEntitySet,
+                createdBy
+        );
     }
 
     public void updateUsername(String username) {
@@ -53,7 +59,13 @@ public class UserEntity {
         this.roleEntitySet = validateRoleEntitySet(roleEntitySet);
     }
 
-    private UserEntity(String username, String email, Set<RoleEntity> roleEntitySet) {
+    private UserEntity(
+            String username,
+            String email,
+            Set<RoleEntity> roleEntitySet,
+            Long createdBy
+    ) {
+        super(createdBy);
         this.username = validateUsername(username);
         this.email = validateEmail(email);
         this.roleEntitySet = validateRoleEntitySet(roleEntitySet);

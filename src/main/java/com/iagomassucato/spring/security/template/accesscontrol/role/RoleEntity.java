@@ -1,8 +1,9 @@
 package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import com.iagomassucato.spring.security.template.accesscontrol.permission.PermissionEntity;
+import com.iagomassucato.spring.security.template.shared.AbstractEntity;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.HashSet;
@@ -15,14 +16,9 @@ import java.util.Set;
                 @UniqueConstraint(name = "uk_roles_name", columnNames = "name")
         }
 )
-@NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class RoleEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RoleEntity extends AbstractEntity {
 
     @Column(nullable = false)
     private String name;
@@ -61,17 +57,17 @@ public class RoleEntity {
 
     }
 
-    private String validateName(String value) {
-        if (value == null || value.isBlank()) {
+    private String validateName(String name) {
+        if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("name is required");
         }
-        return value.trim().toUpperCase();
+        return name.trim().toUpperCase();
     }
 
-    private Set<PermissionEntity> validatePermissionEntitySet(Set<PermissionEntity> value) {
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("permissionEntitySet is required");
+    private Set<PermissionEntity> validatePermissionEntitySet(Set<PermissionEntity> permissionEntitySet) {
+        if (permissionEntitySet == null) {
+            throw new IllegalArgumentException("permissionEntitySet cannot be null");
         }
-        return value;
+        return permissionEntitySet;
     }
 }

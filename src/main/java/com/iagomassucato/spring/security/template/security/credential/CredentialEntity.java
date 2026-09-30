@@ -1,8 +1,9 @@
 package com.iagomassucato.spring.security.template.security.credential;
 
+import com.iagomassucato.spring.security.template.shared.AbstractEntity;
 import com.iagomassucato.spring.security.template.user.UserEntity;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,14 +14,9 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(name = "uk_credentials_provider_id", columnNames = "provider_id"),
                 @UniqueConstraint(name = "uk_credentials_user_id_provider", columnNames = {"user_id", "provider"})
         })
-@NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class CredentialEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class CredentialEntity extends AbstractEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

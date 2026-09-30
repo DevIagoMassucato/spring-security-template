@@ -1,13 +1,12 @@
 package com.iagomassucato.spring.security.template.accesscontrol.role;
 
 import com.iagomassucato.spring.security.template.shared.PatchRequest;
-import lombok.Getter;
 import java.util.Set;
 
-@Getter
-public class RolePatchRequest implements PatchRequest {
-    private String name;
-    private Set<Long> permissionIds;
+public record RolePatchRequest(
+    String name,
+    Set<Long> permissionIds
+) implements PatchRequest {
 
     @Override
     public boolean hasFieldsToUpdate() {
@@ -19,6 +18,6 @@ public class RolePatchRequest implements PatchRequest {
     }
 
     private boolean hasPermissionIds(Set<Long> permissionIds) {
-        return permissionIds != null && !permissionIds.isEmpty();
+        return permissionIds != null;
     }
 }
