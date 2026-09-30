@@ -12,5 +12,5 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
     Optional<RefreshTokenEntity> findByTokenId(String tokenId);
     void deleteBySessionEntityUserEntity(UserEntity userEntity);
     void deleteBySessionEntity(SessionEntity sessionEntity);
-    void deleteByExpirationDateBefore(Instant dateTime);
+    void deleteByExpiresAtBefore(Instant expiresAt);
 }

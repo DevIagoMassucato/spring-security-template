@@ -25,7 +25,7 @@ public class RefreshTokenDeleter {
         refreshTokenRepository.deleteBySessionEntity(sessionEntity);
     }
 
-    public void deleteByExpirationDateBefore(Instant expirationDate) {
-        refreshTokenRepository.deleteByExpirationDateBefore(expirationDate);
+    public void deleteByExpiresAtBefore(Instant expiresAt) {
+        refreshTokenRepository.deleteByExpiresAtBefore(expiresAt);
     }
 }
